@@ -10,13 +10,13 @@ import java.util.*
 @Dao
 interface DieSetDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(vararg set: DieSetEntity)
+    suspend fun insert(set: DieSetEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun update(vararg set: DieSetEntity)
+    suspend fun update(set: DieSetEntity)
 
     @Query("delete from die_sets where id = :id")
-    suspend fun delete(vararg id: UUID)
+    suspend fun delete(id: UUID)
 
     @Query("SELECT id , name from die_sets")
     fun getSetHeaders(): LiveData<List<DieSetHeaderEntity>>

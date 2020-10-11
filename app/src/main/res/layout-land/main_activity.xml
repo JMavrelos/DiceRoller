@@ -100,8 +100,7 @@
             app:fabSize="mini"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/action"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/d20" />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/action"
@@ -114,7 +113,6 @@
             app:layout_constraintBottom_toBottomOf="@id/clear"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/clear"
-            app:layout_constraintTop_toBottomOf="@id/d20"
             app:layout_constraintTop_toTopOf="@id/clear" />
 
         <androidx.constraintlayout.widget.Barrier

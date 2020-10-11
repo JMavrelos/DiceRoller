@@ -12,7 +12,7 @@ class SetAdapter(private val listener: (UUID) -> Unit) : RecyclerView.Adapter<Se
 
 
     fun submit(newSets: List<DieSetHeader>?) {
-        val diff = DieSetHeaderDiff(sets, newSets ?: listOf())
+        val diff = DieSetHeaderDiff(sets.toList(), newSets ?: listOf())
         sets.clear()
         sets.addAll(newSets ?: listOf())
         DiffUtil.calculateDiff(diff).dispatchUpdatesTo(this)

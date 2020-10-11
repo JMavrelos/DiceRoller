@@ -23,7 +23,7 @@ class MainRepository : KoinComponent {
     private val rnd get() = Random.Default
 
     fun getSets(): LiveData<List<DieSetHeaderData>> {
-        return db.dieSetDao.getSets().map { it.map(DieSetEntity::toHeader) }
+        return db.dieSetDao.getSetHeaders().map { it.map(DieSetHeaderEntity::toData) }
     }
 
     fun generateValue(die: Die): Int {
