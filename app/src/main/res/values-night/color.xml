@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primaryColor">#9c27b0</color>
+    <color name="primaryLightColor">#d05ce3</color>
+    <color name="primaryDarkColor">#6a0080</color>
+    <color name="secondaryColor">#ffeb3b</color>
+    <color name="secondaryLightColor">#ffff72</color>
+    <color name="secondaryDarkColor">#c8b900</color>
+    <color name="primaryTextColor">#ffffff</color>
+    <color name="secondaryTextColor">#000000</color>
+
+    <color name="backgroundColor">#000000</color>
+    <color name="textColor">#ffffff</color>
+
+    <color name="surfaceColor">#121212</color>
+    <color name="surfaceTextColor">#ffffff</color>
+
+    <color name="errorColor">#cf6679</color>
+    <color name="errorTextColor">#000000</color>
+
+    <color name="food">#795548</color>
+    <color name="water">#03a9f4</color>
+</resources>

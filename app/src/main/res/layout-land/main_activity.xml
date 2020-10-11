@@ -10,187 +10,84 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:background="?colorSurface"
-        app:layout_constraintBottom_toTopOf="@id/sets"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/d4"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:text="@string/d4"
             android:textSize="22sp"
-            app:layout_constraintBottom_toTopOf="@id/d4times"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/d6"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="spread" />
 
-        <TextView
-            android:id="@+id/d4times"
-            style="@style/TextAppearance.MaterialComponents.Body1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:ems="3"
-            android:gravity="center"
-            android:padding="@dimen/padding"
-            android:textSize="22sp"
-            app:layout_constraintBottom_toTopOf="@id/d6"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/d4"
-            tools:text="10" />
-
-
         <com.google.android.material.button.MaterialButton
             android:id="@+id/d6"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:text="@string/d6"
             android:textSize="22sp"
-            app:layout_constraintBottom_toTopOf="@id/d6times"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/d4times" />
-
-        <TextView
-            android:id="@+id/d6times"
-            style="@style/TextAppearance.MaterialComponents.Body1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:ems="3"
-            android:gravity="center"
-            android:padding="@dimen/padding"
-            android:textSize="22sp"
             app:layout_constraintBottom_toTopOf="@id/d8"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/d6"
-            tools:text="10" />
+            app:layout_constraintTop_toBottomOf="@id/d4" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/d8"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
+
             android:text="@string/d8"
             android:textSize="22sp"
-            app:layout_constraintBottom_toTopOf="@id/d8times"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/d6times" />
-
-        <TextView
-            android:id="@+id/d8times"
-            style="@style/TextAppearance.MaterialComponents.Body1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:ems="3"
-            android:gravity="center"
-            android:padding="@dimen/padding"
-            android:textSize="22sp"
             app:layout_constraintBottom_toTopOf="@id/d10"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/d8"
-            tools:text="10" />
+            app:layout_constraintTop_toBottomOf="@id/d6" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/d10"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:text="@string/d10"
             android:textSize="22sp"
-            app:layout_constraintBottom_toTopOf="@id/d10times"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/d20"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/d8times" />
-
-        <TextView
-            android:id="@+id/d10times"
-            style="@style/TextAppearance.MaterialComponents.Body1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:ems="3"
-            android:gravity="center"
-            android:padding="@dimen/padding"
-            android:textSize="22sp"
-            app:layout_constraintBottom_toTopOf="@id/d12"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/d10"
-            tools:text="10" />
+            app:layout_constraintTop_toBottomOf="@id/d8" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/d12"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:text="@string/d12"
             android:textSize="22sp"
-            app:layout_constraintBottom_toTopOf="@id/d12times"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/d10times" />
-
-        <TextView
-            android:id="@+id/d12times"
-            style="@style/TextAppearance.MaterialComponents.Body1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:ems="3"
-            android:gravity="center"
-            android:padding="@dimen/padding"
-            android:textSize="22sp"
             app:layout_constraintBottom_toTopOf="@id/d20"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/d12"
-            tools:text="10" />
-
+            app:layout_constraintTop_toBottomOf="@id/d10" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/d20"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:text="@string/d20"
             android:textSize="22sp"
-            app:layout_constraintBottom_toTopOf="@id/d20times"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/d12times" />
-
-        <TextView
-            android:id="@+id/d20times"
-            style="@style/TextAppearance.MaterialComponents.Body1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:ems="3"
-            android:gravity="center"
-            android:padding="@dimen/padding"
-            android:textSize="22sp"
             app:layout_constraintBottom_toTopOf="@id/delete"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/d20"
-            tools:text="10" />
+            app:layout_constraintTop_toBottomOf="@id/d12" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/delete"
@@ -204,7 +101,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/save"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/d20times" />
+            app:layout_constraintTop_toBottomOf="@id/d20" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/save"
@@ -220,35 +117,118 @@
             app:layout_constraintTop_toBottomOf="@id/d20"
             app:layout_constraintTop_toTopOf="@id/delete" />
 
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/roll_barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="end"
+            app:constraint_referenced_ids="d4,d6,d8,d20,d12"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/d4times"
+            style="@style/TextAppearance.MaterialComponents.Body1"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:ems="3"
+            android:gravity="center"
+            android:textSize="22sp"
+            app:layout_constraintBottom_toBottomOf="@id/d4"
+            app:layout_constraintStart_toEndOf="@id/roll_barrier"
+            app:layout_constraintTop_toTopOf="@id/d4"
+            tools:text="10" />
+
+        <TextView
+            android:id="@+id/d6times"
+            style="@style/TextAppearance.MaterialComponents.Body1"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:ems="3"
+            android:gravity="center"
+            android:textSize="22sp"
+            app:layout_constraintBottom_toBottomOf="@id/d6"
+            app:layout_constraintStart_toEndOf="@id/roll_barrier"
+            app:layout_constraintTop_toTopOf="@id/d6"
+            tools:text="10" />
+
+        <TextView
+            android:id="@+id/d8times"
+            style="@style/TextAppearance.MaterialComponents.Body1"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:ems="3"
+            android:gravity="center"
+            android:textSize="22sp"
+            app:layout_constraintBottom_toBottomOf="@id/d8"
+            app:layout_constraintStart_toEndOf="@id/roll_barrier"
+            app:layout_constraintTop_toTopOf="@id/d8"
+            tools:text="10" />
+
+        <TextView
+            android:id="@+id/d10times"
+            style="@style/TextAppearance.MaterialComponents.Body1"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:ems="3"
+            android:gravity="center"
+            android:textSize="22sp"
+            app:layout_constraintBottom_toBottomOf="@id/d10"
+            app:layout_constraintStart_toEndOf="@id/roll_barrier"
+            app:layout_constraintTop_toTopOf="@id/d10"
+            tools:text="10" />
+
+        <TextView
+            android:id="@+id/d12times"
+            style="@style/TextAppearance.MaterialComponents.Body1"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:ems="3"
+            android:gravity="center"
+            android:textSize="22sp"
+            app:layout_constraintBottom_toBottomOf="@id/d12"
+            app:layout_constraintStart_toEndOf="@id/roll_barrier"
+            app:layout_constraintTop_toTopOf="@id/d12"
+            tools:text="10" />
+
+        <TextView
+            android:id="@+id/d20times"
+            style="@style/TextAppearance.MaterialComponents.Body1"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:ems="3"
+            android:gravity="center"
+            android:textSize="22sp"
+            app:layout_constraintBottom_toBottomOf="@id/d20"
+            app:layout_constraintStart_toEndOf="@id/roll_barrier"
+            app:layout_constraintTop_toTopOf="@id/d20"
+            tools:text="10" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/sets"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingStart="@dimen/activity_horizontal_margin"
-        android:paddingEnd="@dimen/activity_horizontal_margin"
-
+        android:layout_height="0dp"
+        android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent=".2"
         tools:listitem="@layout/list_item_set" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/margin"
         app:layoutManager="androidx.recyclerview.widget.StaggeredGridLayoutManager"
-        app:layout_constraintBottom_toTopOf="@id/sets"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/sets"
         app:layout_constraintStart_toEndOf="@id/rolls"
         app:layout_constraintTop_toTopOf="parent"
-        app:spanCount="3"
+        app:spanCount="4"
         tools:itemCount="6"
         tools:listitem="@layout/list_item_die" />
 
