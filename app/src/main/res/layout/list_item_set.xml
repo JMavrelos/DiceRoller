@@ -4,10 +4,12 @@
     style="@style/AppTheme.CardView"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_margin="4dp"
     android:paddingStart="@dimen/padding"
     android:paddingEnd="@dimen/padding">
 
     <TextView
+        android:id="@+id/name"
         style="@style/TextAppearance.MaterialComponents.Body1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/rolls"
+        android:id="@+id/dice"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:background="?colorSurface"
@@ -16,7 +16,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/d4"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -30,7 +30,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/d6"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -42,7 +42,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/d8"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -55,7 +55,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/d10"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -67,7 +67,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/d12"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -79,18 +79,18 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/d20"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:text="@string/d20"
             android:textSize="22sp"
-            app:layout_constraintBottom_toTopOf="@id/delete"
+            app:layout_constraintBottom_toTopOf="@id/clear"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/d12" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/delete"
+            android:id="@+id/clear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -99,23 +99,23 @@
             android:text="@string/save"
             app:fabSize="mini"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/save"
+            app:layout_constraintEnd_toStartOf="@id/action"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/d20" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/save"
+            android:id="@+id/action"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin"
             android:src="@drawable/ic_save"
             android:text="@string/save"
             app:fabSize="mini"
-            app:layout_constraintBottom_toBottomOf="@id/delete"
+            app:layout_constraintBottom_toBottomOf="@id/clear"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/delete"
+            app:layout_constraintStart_toEndOf="@id/clear"
             app:layout_constraintTop_toBottomOf="@id/d20"
-            app:layout_constraintTop_toTopOf="@id/delete" />
+            app:layout_constraintTop_toTopOf="@id/clear" />
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/roll_barrier"
@@ -204,6 +204,12 @@
             app:layout_constraintTop_toTopOf="@id/d20"
             tools:text="10" />
 
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/times"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="d20times,d12times,d10times,d8times,d6times,d4times" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -219,17 +225,28 @@
         tools:listitem="@layout/list_item_set" />
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rolls"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin"
         android:layout_marginEnd="@dimen/margin"
-        app:layoutManager="androidx.recyclerview.widget.StaggeredGridLayoutManager"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/sets"
-        app:layout_constraintStart_toEndOf="@id/rolls"
+        app:layout_constraintStart_toEndOf="@id/dice"
         app:layout_constraintTop_toTopOf="parent"
         app:spanCount="4"
         tools:itemCount="6"
-        tools:listitem="@layout/list_item_die" />
+        tools:listitem="@layout/list_item_roll" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/help"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin"
+        android:src="@drawable/ic_help"
+        app:fabSize="mini"
+        app:layout_constraintEnd_toStartOf="@id/sets"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

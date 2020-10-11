@@ -1,14 +1,35 @@
 package gr.blackswamp.diceroller.ui
 
-data class MainActivityState(
-    val showDelete: Boolean = false,
-    val showSave: Boolean = false,
-    val d4times: Int = 0,
-    val d6times: Int = 0,
-    val d8times: Int = 0,
-    val d10times: Int = 0,
-    val d12times: Int = 0,
-    val d20times: Int = 0,
-) {
+import java.util.*
 
+data class MainActivityState(
+    val rolls: List<Roll> = listOf(),
+    val set: DieSet? = null,
+    val editing: Boolean = false
+)
+
+interface DieSet {
+    val id: UUID
+    val name: String
+    val dice: Map<Die, Int>
 }
+
+interface DieSetHeader {
+    val id: UUID
+    val name: String
+}
+
+interface Roll {
+    val die: Die
+    val value: Int
+}
+
+enum class Die {
+    D4,
+    D6,
+    D8,
+    D10,
+    D12,
+    D20
+}
+

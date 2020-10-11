@@ -1,4 +1,4 @@
-package gr.blackswamp.diceroller.util.dialog
+package gr.blackswamp.diceroller.util
 
 import android.os.Bundle
 import android.view.View
