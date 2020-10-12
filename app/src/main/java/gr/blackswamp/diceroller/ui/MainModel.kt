@@ -30,6 +30,7 @@ enum class Die {
     D8,
     D10,
     D12,
-    D20
+    D20,
+    Mod
 }
 

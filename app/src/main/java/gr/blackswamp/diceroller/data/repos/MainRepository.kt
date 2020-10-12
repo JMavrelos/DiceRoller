@@ -34,6 +34,7 @@ class MainRepository : KoinComponent {
             Die.D10 -> rnd.nextInt(10) + 1
             Die.D12 -> rnd.nextInt(12) + 1
             Die.D20 -> rnd.nextInt(20) + 1
+            Die.Mod -> rnd.nextInt(100) + 1
         }
     }
 
@@ -45,7 +46,8 @@ class MainRepository : KoinComponent {
                 Die.D8 to 0,
                 Die.D10 to 0,
                 Die.D12 to 0,
-                Die.D20 to 0
+                Die.D20 to 0,
+                Die.Mod to 0
             )
         )
     }
@@ -107,7 +109,8 @@ private fun DieSetEntity.toData(): DieSetData {
         Die.D8 to this.d8s,
         Die.D10 to this.d10s,
         Die.D12 to this.d12s,
-        Die.D20 to this.d20s
+        Die.D20 to this.d20s,
+        Die.Mod to this.mod
     )
     return DieSetData(this.id, this.name, map)
 }
@@ -120,15 +123,12 @@ private fun DieSetData.toEntity(): DieSetEntity {
         this.dice[Die.D10] ?: 0,
         this.dice[Die.D12] ?: 0,
         this.dice[Die.D20] ?: 0,
+        this.dice[Die.Mod] ?: 0,
     )
 
 }
 
 private fun DieSetHeaderEntity.toData(): DieSetHeaderData =
-    DieSetHeaderData(this.id, this.name)
-
-
-private fun DieSetEntity.toHeader(): DieSetHeaderData =
     DieSetHeaderData(this.id, this.name)
 
 

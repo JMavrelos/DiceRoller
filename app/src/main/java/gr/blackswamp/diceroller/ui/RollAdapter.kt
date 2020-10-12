@@ -40,7 +40,8 @@ class RollAdapter : RecyclerView.Adapter<RollAdapter.RollViewHolder>() {
 
 
         fun update(roll: Roll) {
-            value.text = roll.value.toString()
+            val text = "${roll.value}${if (roll.die == Die.Mod) "%" else ""}"
+            value.text = text
             val set = ConstraintSet()
             set.clone(root)
             val bias: Float
@@ -70,10 +71,17 @@ class RollAdapter : RecyclerView.Adapter<RollAdapter.RollViewHolder>() {
                     resId = R.drawable.ic_d20
                     bias = 0.5f
                 }
+                Die.Mod -> {
+                    resId = -1
+                    bias = 0.5f
+                }
             }
             set.setVerticalBias(R.id.value, bias)
             set.applyTo(root)
-            die.setImageResource(resId)
+            if (resId == -1)
+                die.setImageDrawable(null)
+            else
+                die.setImageResource(resId)
 
         }
     }

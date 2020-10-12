@@ -15,7 +15,8 @@ data class DieSetEntity(
     val d8s: Int,
     val d10s: Int,
     val d12s: Int,
-    val d20s: Int
+    val d20s: Int,
+    val mod: Int
 )
 
 data class DieSetHeaderEntity(val id: UUID, val name: String)

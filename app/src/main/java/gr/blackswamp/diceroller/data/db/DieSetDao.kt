@@ -21,9 +21,6 @@ interface DieSetDao {
     @Query("SELECT id , name from die_sets")
     fun getSetHeaders(): LiveData<List<DieSetHeaderEntity>>
 
-    @Query("SELECT * from die_sets")
-    fun getSets(): LiveData<List<DieSetEntity>>
-
     @Query("SELECT * from die_sets where id = :id")
     suspend fun getSet(id: UUID): DieSetEntity
 }
