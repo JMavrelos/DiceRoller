@@ -25,6 +25,7 @@
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:text="@string/d4"
             android:textSize="22sp"
+            app:icon="@drawable/ic_d4"
             app:layout_constraintBottom_toTopOf="@id/d6"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -38,6 +39,7 @@
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:text="@string/d6"
             android:textSize="22sp"
+            app:icon="@drawable/ic_d6"
             app:layout_constraintBottom_toTopOf="@id/d8"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/d4" />
@@ -50,6 +52,7 @@
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:text="@string/d8"
             android:textSize="22sp"
+            app:icon="@drawable/ic_d8"
             app:layout_constraintBottom_toTopOf="@id/d10"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/d6" />
@@ -62,6 +65,7 @@
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:text="@string/d10"
             android:textSize="22sp"
+            app:icon="@drawable/ic_d10"
             app:layout_constraintBottom_toTopOf="@id/d12"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/d8" />
@@ -74,6 +78,7 @@
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:text="@string/d12"
             android:textSize="22sp"
+            app:icon="@drawable/ic_d12"
             app:layout_constraintBottom_toTopOf="@id/d20"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/d10" />
@@ -86,6 +91,7 @@
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:text="@string/d20"
             android:textSize="22sp"
+            app:icon="@drawable/ic_d20"
             app:layout_constraintBottom_toTopOf="@id/d100"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/d12" />
