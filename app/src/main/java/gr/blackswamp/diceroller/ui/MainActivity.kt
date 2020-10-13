@@ -12,8 +12,6 @@ import gr.blackswamp.diceroller.databinding.MainActivityBinding
 import gr.blackswamp.diceroller.logic.MainViewModel
 import gr.blackswamp.diceroller.util.*
 import org.koin.android.viewmodel.ext.android.viewModel
-import timber.log.Timber
-
 
 class MainActivity : AppCompatActivity() {
     private val binding by lazy { MainActivityBinding.inflate(layoutInflater) }
@@ -156,20 +154,16 @@ class MainActivity : AppCompatActivity() {
             }
         }
         if (!imageView.isVisible && visible) {
-            val pos = imageView.left * 1f
-            imageView.translationX = -pos
+            imageView.translationX = (imageView.left - action1.left) * -1f
             imageView.isVisible = true
             imageView.animate()
-                .translationX(0f).withEndAction {
-                    Timber.d("$imageView x is ${imageView.x} translationX is ${imageView.translationX}")
-                }
+                .translationX(0f)
         } else if (imageView.isVisible && !visible) {
             imageView.animate()
-                .translationX(-imageView.x)
+                .translationX((imageView.left - action1.left) * -1f)
                 .withEndAction {
                     imageView.isVisible = false
                     imageView.translationX = 0f
-                    Timber.d("$imageView x is ${imageView.x} translationX is ${imageView.translationX}")
                 }
         }
     }
