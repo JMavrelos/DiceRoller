@@ -3,7 +3,6 @@ package gr.blackswamp.diceroller.ui
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -11,7 +10,9 @@ import androidx.core.view.isVisible
 import gr.blackswamp.diceroller.R
 import gr.blackswamp.diceroller.databinding.MainActivityBinding
 import gr.blackswamp.diceroller.logic.MainViewModel
+import gr.blackswamp.diceroller.util.*
 import org.koin.android.viewmodel.ext.android.viewModel
+import timber.log.Timber
 
 
 class MainActivity : AppCompatActivity() {
@@ -35,7 +36,8 @@ class MainActivity : AppCompatActivity() {
     private val d12number by lazy { binding.d12number }
     private val d20number by lazy { binding.d20number }
     private val modNumber by lazy { binding.modNumber }
-    private val timesGroup by lazy { binding.numberGroup }
+    private val numberGroup by lazy { binding.numberGroup }
+    private val dieGroup: Group2 by lazy { binding.dieGroup }
     private val film by lazy { binding.film }
     private val help by lazy { binding.help }
     private val action1 by lazy { binding.action1 }
@@ -110,66 +112,33 @@ class MainActivity : AppCompatActivity() {
             return
         rollAdapter.submit(state.rolls)
         setAdapter.setSelected(state.set?.id)
-        updateVisibility(timesGroup, state.set == null)
 
         if (state.set == null) { //rolling normally
-            updateIcon(action1, R.drawable.ic_add)
-            updateVisibility(action2, false)
-            updateVisibility(action3, false)
-            updateVisibility(modNumber.root, false)
-            updateVisibility(timesGroup, false)
-            updateEnabled(d4, true)
-            updateEnabled(d6, true)
-            updateEnabled(d8, true)
-            updateEnabled(d10, true)
-            updateEnabled(d12, true)
-            updateEnabled(d20, true)
-            updateEnabled(d100, true)
-            updateText(d100, getString(R.string.d100))
+            updateAction(action1, R.drawable.ic_add, true)
+            updateAction(action2, -1, false)
+            updateAction(action3, -1, false)
+            modNumber.root.visible = false
+            d100.res = R.string.d100
             updateAlpha(film, 0f)
         } else if (!state.editing) { //new set
-            updateIcon(action1, R.drawable.ic_save)
-            updateIcon(action2, R.drawable.ic_cancel)
-            updateVisibility(action2, true)
-            updateVisibility(action3, false)
-            updateVisibility(modNumber.root, true)
-            updateVisibility(timesGroup, true)
-            updateEnabled(d4, false)
-            updateEnabled(d6, false)
-            updateEnabled(d8, false)
-            updateEnabled(d10, false)
-            updateEnabled(d12, false)
-            updateEnabled(d20, false)
-            updateEnabled(d100, false)
-            updateText(d100, getString(R.string.modifier))
+            updateAction(action1, R.drawable.ic_save, true)
+            updateAction(action2, R.drawable.ic_cancel, true)
+            updateAction(action3, -1, false)
+            modNumber.root.visible = true
+            numberGroup.visibility
+            d100.res = R.string.modifier
             updateAlpha(film, 0.1f)
         } else {//editing a set
-            updateIcon(action1, R.drawable.ic_save)
-            updateIcon(action2, R.drawable.ic_delete)
-            updateIcon(action3, R.drawable.ic_cancel)
-            updateVisibility(action2, true)
-            updateVisibility(action3, true)
-            updateVisibility(modNumber.root, true)
-            updateVisibility(timesGroup, true)
-            updateEnabled(d4, false)
-            updateEnabled(d6, false)
-            updateEnabled(d8, false)
-            updateEnabled(d10, false)
-            updateEnabled(d12, false)
-            updateEnabled(d20, false)
-            updateEnabled(d100, false)
-            updateText(d100, getString(R.string.modifier))
+            updateAction(action1, R.drawable.ic_save, true)
+            updateAction(action2, R.drawable.ic_delete, true)
+            updateAction(action3, R.drawable.ic_cancel, true)
+            modNumber.root.visible = true
+            d100.res = R.string.modifier
             updateAlpha(film, 0.1f)
         }
         updateValues(state.set)
-    }
-
-    private fun updateVisibility(view: View, visible: Boolean) {
-        if (view.isVisible && !visible)
-            view.isVisible = false
-        else if (!view.isVisible && visible)
-            view.isVisible = true
-
+        dieGroup.enabled = state.set == null
+        numberGroup.visible = state.set != null
     }
 
     private fun updateAlpha(view: View, alpha: Float) {
@@ -178,34 +147,41 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateIcon(imageView: ImageView, @DrawableRes resId: Int) {
-        val current = imageView.tag as? Int
-        if (current != resId) {
-            imageView.tag = resId
-            imageView.setImageResource(resId)
+    private fun updateAction(imageView: ImageView, @DrawableRes resId: Int, visible: Boolean) {
+        if (resId != -1) {
+            val current = imageView.tag as? Int
+            if (current != resId) {
+                imageView.tag = resId
+                imageView.setImageResource(resId)
+            }
+        }
+        if (!imageView.isVisible && visible) {
+            val pos = imageView.left * 1f
+            imageView.translationX = -pos
+            imageView.isVisible = true
+            imageView.animate()
+                .translationX(0f).withEndAction {
+                    Timber.d("$imageView x is ${imageView.x} translationX is ${imageView.translationX}")
+                }
+        } else if (imageView.isVisible && !visible) {
+            imageView.animate()
+                .translationX(-imageView.x)
+                .withEndAction {
+                    imageView.isVisible = false
+                    imageView.translationX = 0f
+                    Timber.d("$imageView x is ${imageView.x} translationX is ${imageView.translationX}")
+                }
         }
     }
 
     private fun updateValues(dieSet: DieSet?) {
-        updateText(d4number.value, dieSet?.dice?.get(Die.D4)?.toString())
-        updateText(d6number.value, dieSet?.dice?.get(Die.D6)?.toString())
-        updateText(d8number.value, dieSet?.dice?.get(Die.D8)?.toString())
-        updateText(d10number.value, dieSet?.dice?.get(Die.D10)?.toString())
-        updateText(d12number.value, dieSet?.dice?.get(Die.D12)?.toString())
-        updateText(d20number.value, dieSet?.dice?.get(Die.D20)?.toString())
-        updateText(modNumber.value, dieSet?.dice?.get(Die.Mod)?.toString())
-    }
-
-    private fun updateText(textView: TextView, text: String?) {
-        if (textView.text != text)
-            textView.text = text
-    }
-
-    private fun updateEnabled(view: View, enabled: Boolean) {
-        if (view.isEnabled && !enabled)
-            view.isEnabled = false
-        else if (!view.isEnabled && enabled)
-            view.isEnabled = true
+        d4number.value.value = dieSet?.dice?.get(Die.D4)?.toString() ?: ""
+        d6number.value.value = dieSet?.dice?.get(Die.D6)?.toString() ?: ""
+        d8number.value.value = dieSet?.dice?.get(Die.D8)?.toString() ?: ""
+        d10number.value.value = dieSet?.dice?.get(Die.D10)?.toString() ?: ""
+        d12number.value.value = dieSet?.dice?.get(Die.D12)?.toString() ?: ""
+        d20number.value.value = dieSet?.dice?.get(Die.D20)?.toString() ?: ""
+        modNumber.value.value = dieSet?.dice?.get(Die.Mod)?.toString() ?: ""
     }
 
 }

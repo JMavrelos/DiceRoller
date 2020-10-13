@@ -8,6 +8,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/dice"
+        android:animateLayoutChanges="true"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:background="?colorSurface"
@@ -25,7 +26,7 @@
             android:text="@string/d4"
             android:textSize="22sp"
             app:layout_constraintBottom_toTopOf="@id/d6"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="spread" />
 
@@ -38,7 +39,7 @@
             android:text="@string/d6"
             android:textSize="22sp"
             app:layout_constraintBottom_toTopOf="@id/d8"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/d4" />
 
         <com.google.android.material.button.MaterialButton
@@ -50,7 +51,7 @@
             android:text="@string/d8"
             android:textSize="22sp"
             app:layout_constraintBottom_toTopOf="@id/d10"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/d6" />
 
         <com.google.android.material.button.MaterialButton
@@ -62,7 +63,7 @@
             android:text="@string/d10"
             android:textSize="22sp"
             app:layout_constraintBottom_toTopOf="@id/d12"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/d8" />
 
         <com.google.android.material.button.MaterialButton
@@ -74,7 +75,7 @@
             android:text="@string/d12"
             android:textSize="22sp"
             app:layout_constraintBottom_toTopOf="@id/d20"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/d10" />
 
         <com.google.android.material.button.MaterialButton
@@ -86,7 +87,7 @@
             android:text="@string/d20"
             android:textSize="22sp"
             app:layout_constraintBottom_toTopOf="@id/d100"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/d12" />
 
         <com.google.android.material.button.MaterialButton
@@ -98,14 +99,14 @@
             android:text="@string/d100"
             android:textSize="22sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/d20" />
 
         <androidx.constraintlayout.widget.Barrier
             android:id="@+id/roll_barrier"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:barrierDirection="start"
+            app:barrierDirection="end"
             app:constraint_referenced_ids="d4,d6,d8,d20,d12" />
 
 
@@ -115,7 +116,8 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="@id/d4"
-            app:layout_constraintEnd_toStartOf="@id/roll_barrier"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/roll_barrier"
             app:layout_constraintTop_toTopOf="@id/d4" />
 
         <include
@@ -124,7 +126,7 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="@id/d6"
-            app:layout_constraintEnd_toStartOf="@id/roll_barrier"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/d6" />
 
         <include
@@ -134,7 +136,8 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="@id/d8"
-            app:layout_constraintEnd_toStartOf="@id/roll_barrier"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/roll_barrier"
             app:layout_constraintTop_toTopOf="@id/d8" />
 
         <include
@@ -144,7 +147,8 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="@id/d10"
-            app:layout_constraintEnd_toStartOf="@id/roll_barrier"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/roll_barrier"
             app:layout_constraintTop_toTopOf="@id/d10" />
 
         <include
@@ -154,7 +158,7 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="@id/d12"
-            app:layout_constraintEnd_toStartOf="@id/roll_barrier"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/d12" />
 
         <include
@@ -167,7 +171,8 @@
             android:gravity="center"
             android:textSize="22sp"
             app:layout_constraintBottom_toBottomOf="@id/d20"
-            app:layout_constraintEnd_toStartOf="@id/roll_barrier"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/roll_barrier"
             app:layout_constraintTop_toTopOf="@id/d20" />
 
         <include
@@ -176,15 +181,21 @@
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="@id/d100"
-            app:layout_constraintEnd_toStartOf="@id/roll_barrier"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/roll_barrier"
             app:layout_constraintTop_toTopOf="@id/d100" />
+
+        <gr.blackswamp.diceroller.util.Group2
+            android:id="@+id/die_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="d4,d6,d8,d10,d12,d20,d100" />
 
         <androidx.constraintlayout.widget.Group
             android:id="@+id/number_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-
             app:constraint_referenced_ids="mod_number,d20number,d12number,d10number,d8number,d6number,d4number" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -240,14 +251,15 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/action1"
+        android:id="@+id/action3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
-        android:src="@drawable/ic_add"
+        android:visibility="gone"
         app:fabSize="mini"
         app:layout_constraintBottom_toTopOf="@id/sets"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toEndOf="@id/action2" />
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/action2"
@@ -260,13 +272,13 @@
         app:layout_constraintStart_toEndOf="@id/action1" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/action3"
+        android:id="@+id/action1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
-        android:visibility="gone"
+        android:src="@drawable/ic_add"
         app:fabSize="mini"
         app:layout_constraintBottom_toTopOf="@id/sets"
-        app:layout_constraintStart_toEndOf="@id/action2" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
