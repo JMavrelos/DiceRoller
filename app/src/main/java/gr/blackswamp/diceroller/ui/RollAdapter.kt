@@ -6,12 +6,14 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import gr.blackswamp.diceroller.R
-import gr.blackswamp.diceroller.databinding.ListItemRollBinding
+import gr.blackswamp.diceroller.databinding.ListItemModBinding
+import gr.blackswamp.diceroller.databinding.ListItemResultBinding
+import gr.blackswamp.diceroller.util.value
 import timber.log.Timber
 
-class RollAdapter : RecyclerView.Adapter<RollAdapter.RollViewHolder>() {
-    private val rolls = mutableListOf<Roll>()
+class RollAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    private val rolls = mutableListOf<Roll>()
 
     fun submit(newRolls: List<Roll>?) {
         if (rolls == newRolls)
@@ -23,25 +25,54 @@ class RollAdapter : RecyclerView.Adapter<RollAdapter.RollViewHolder>() {
         DiffUtil.calculateDiff(diff).dispatchUpdatesTo(this)
     }
 
+    fun getRoll(position: Int): Roll? {
+        return if (position < rolls.size && position >= 0)
+            rolls[position]
+        else
+            null
+    }
 
     override fun getItemCount(): Int = rolls.size
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RollViewHolder =
-        RollViewHolder(ListItemRollBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-
-    override fun onBindViewHolder(holder: RollViewHolder, position: Int) {
-        holder.update(rolls[position])
+    override fun getItemViewType(position: Int): Int = when (rolls[position]) {
+        is Roll.Result -> R.layout.list_item_result
+        is Roll.Modifier -> R.layout.list_item_mod
     }
 
-    class RollViewHolder(binding: ListItemRollBinding) : RecyclerView.ViewHolder(binding.root) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            R.layout.list_item_mod -> ModViewHolder(ListItemModBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+            R.layout.list_item_result -> ResultViewHolder(ListItemResultBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+            else -> throw Throwable("Invalid view id $viewType")
+        }
+    }
+
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        getRoll(position)?.let {
+            when (it) {
+                is Roll.Modifier -> (holder as ModViewHolder).update(it)
+                is Roll.Result -> (holder as ResultViewHolder).update(it)
+            }
+        }
+    }
+
+
+    class ModViewHolder(binding: ListItemModBinding) : RecyclerView.ViewHolder(binding.root) {
+        val text = binding.root
+        fun update(roll: Roll.Modifier) {
+            text.value = roll.text
+        }
+    }
+
+    class ResultViewHolder(binding: ListItemResultBinding) : RecyclerView.ViewHolder(binding.root) {
         private val root = binding.root
         private val value = binding.value
         private val die = binding.die
 
-
-        fun update(roll: Roll) {
+        fun update(roll: Roll.Result) {
             val text = "${roll.value}${if (roll.die == Die.Mod) "%" else ""}"
-            value.text = text
+            value.value = text
             val set = ConstraintSet()
             set.clone(root)
             val bias: Float
@@ -82,7 +113,6 @@ class RollAdapter : RecyclerView.Adapter<RollAdapter.RollViewHolder>() {
                 die.setImageDrawable(null)
             else
                 die.setImageResource(resId)
-
         }
     }
 
@@ -93,7 +123,12 @@ class RollAdapter : RecyclerView.Adapter<RollAdapter.RollViewHolder>() {
 
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean = false
 
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean = old[oldItemPosition] == new[newItemPosition]
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            val old = old[oldItemPosition]
+            val new = new[newItemPosition]
+            return (old is Roll.Modifier && new is Roll.Modifier && old.text == new.text) ||
+                    (old is Roll.Result && new is Roll.Result && old.die == new.die && old.value == new.value)
+        }
     }
 
 }

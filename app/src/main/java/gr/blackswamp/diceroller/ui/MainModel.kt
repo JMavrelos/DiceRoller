@@ -2,6 +2,11 @@ package gr.blackswamp.diceroller.ui
 
 import java.util.*
 
+sealed class Roll(val viewType: Int) {
+    class Result(val die: Die, val value: Int) : Roll(0)
+    class Modifier(val text: String) : Roll(1)
+}
+
 data class MainActivityState(
     val rolls: List<Roll> = listOf(),
     val set: DieSet? = null,
@@ -17,11 +22,6 @@ interface DieSet {
 interface DieSetHeader {
     val id: UUID
     val name: String
-}
-
-interface Roll {
-    val die: Die
-    val value: Int
 }
 
 enum class Die {

@@ -1,12 +1,14 @@
 package gr.blackswamp.diceroller.ui
 
+import android.content.res.Configuration
 import android.os.Bundle
-import android.view.View
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.isVisible
+import com.google.android.flexbox.FlexDirection
+import com.google.android.flexbox.FlexboxLayoutManager
 import gr.blackswamp.diceroller.R
 import gr.blackswamp.diceroller.databinding.MainActivityBinding
 import gr.blackswamp.diceroller.logic.MainViewModel
@@ -36,13 +38,13 @@ class MainActivity : AppCompatActivity() {
     private val modNumber by lazy { binding.modNumber }
     private val numberGroup by lazy { binding.numberGroup }
     private val dieGroup: Group2 by lazy { binding.dieGroup }
-    private val film by lazy { binding.film }
     private val help by lazy { binding.help }
     private val action1 by lazy { binding.action1 }
     private val action2 by lazy { binding.action2 }
     private val action3 by lazy { binding.action3 }
     private val setAdapter by lazy { SetAdapter(vm::rollSet, vm::editSet) }
     private val rollAdapter by lazy { RollAdapter() }
+    private val inPortrait by lazy { resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT }
     //</editor-fold>
 
 
@@ -51,6 +53,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        val layoutManager = FlexboxLayoutManager(this)
+        layoutManager.flexDirection = FlexDirection.ROW
+//        layoutManager.flexWrap = FlexWrap.NOWRAP
+//        layoutManager.justifyContent = JustifyContent.SPACE_AROUND
+//        layoutManager.alignItems = AlignItems.CENTER
+        rolls.layoutManager = layoutManager
         rolls.adapter = rollAdapter
         sets.adapter = setAdapter
         setUpListeners()
@@ -95,7 +103,6 @@ class MainActivity : AppCompatActivity() {
         d100.setOnClickListener { vm.roll(Die.Mod) }
 
         help.setOnClickListener { vm.pleaseHelpMe() }
-        film.setOnClickListener { vm.clearRolls() }
     }
 
 
@@ -117,7 +124,6 @@ class MainActivity : AppCompatActivity() {
             updateAction(action3, -1, false)
             modNumber.root.visible = false
             d100.res = R.string.d100
-            updateAlpha(film, 0f)
         } else if (!state.editing) { //new set
             updateAction(action1, R.drawable.ic_save, true)
             updateAction(action2, R.drawable.ic_cancel, true)
@@ -125,25 +131,18 @@ class MainActivity : AppCompatActivity() {
             modNumber.root.visible = true
             numberGroup.visibility
             d100.res = R.string.modifier
-            updateAlpha(film, 0.1f)
         } else {//editing a set
             updateAction(action1, R.drawable.ic_save, true)
             updateAction(action2, R.drawable.ic_delete, true)
             updateAction(action3, R.drawable.ic_cancel, true)
             modNumber.root.visible = true
             d100.res = R.string.modifier
-            updateAlpha(film, 0.1f)
         }
         updateValues(state.set)
         dieGroup.enabled = state.set == null
         numberGroup.visible = state.set != null
     }
 
-    private fun updateAlpha(view: View, alpha: Float) {
-        if (view.alpha != alpha) {
-            view.alpha = alpha
-        }
-    }
 
     private fun updateAction(imageView: ImageView, @DrawableRes resId: Int, visible: Boolean) {
         if (resId != -1) {
@@ -154,17 +153,34 @@ class MainActivity : AppCompatActivity() {
             }
         }
         if (!imageView.isVisible && visible) {
-            imageView.translationX = (imageView.left - action1.left) * -1f
-            imageView.isVisible = true
-            imageView.animate()
-                .translationX(0f)
+            if (inPortrait) {
+                imageView.translationX = (imageView.left - action1.left) * -1f
+                imageView.isVisible = true
+                imageView.animate()
+                    .translationX(0f)
+            } else {
+                imageView.translationY = (imageView.bottom - action1.bottom) * -1f
+                imageView.isVisible = true
+                imageView.animate()
+                    .translationY(0f)
+            }
         } else if (imageView.isVisible && !visible) {
-            imageView.animate()
-                .translationX((imageView.left - action1.left) * -1f)
-                .withEndAction {
-                    imageView.isVisible = false
-                    imageView.translationX = 0f
-                }
+            if (inPortrait) {
+                imageView.animate()
+                    .translationX((imageView.left - action1.left) * -1f)
+                    .withEndAction {
+                        imageView.isVisible = false
+                        imageView.translationX = 0f
+                    }
+            } else {
+                imageView.animate()
+                    .translationY((imageView.bottom - action1.bottom) * -1f)
+                    .withEndAction {
+                        imageView.isVisible = false
+                        imageView.translationY = 0f
+                    }
+            }
+
         }
     }
 

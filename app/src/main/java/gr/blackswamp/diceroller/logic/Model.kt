@@ -3,7 +3,6 @@ package gr.blackswamp.diceroller.logic
 import gr.blackswamp.diceroller.ui.Die
 import gr.blackswamp.diceroller.ui.DieSet
 import gr.blackswamp.diceroller.ui.DieSetHeader
-import gr.blackswamp.diceroller.ui.Roll
 import java.util.*
 
 data class DieSetHeaderData(
@@ -17,4 +16,4 @@ data class DieSetData(
     override val dice: Map<Die, Int> = mapOf()
 ) : DieSet
 
-data class RollData(override val die: Die, override val value: Int) : Roll
+data class RollData(val die: Die, val value: Int)

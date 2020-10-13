@@ -11,6 +11,7 @@ import gr.blackswamp.diceroller.data.repos.MainRepository
 import gr.blackswamp.diceroller.ui.Die
 import gr.blackswamp.diceroller.ui.DieSetHeader
 import gr.blackswamp.diceroller.ui.MainActivityState
+import gr.blackswamp.diceroller.ui.Roll
 import kotlinx.coroutines.*
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -24,7 +25,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app), KoinComponent, Co
 
     //<editor-fold desc="variables that represent the current state">
     val sets: LiveData<List<DieSetHeader>> = repo.getSets().map { it }
-    private val rolls = mutableListOf<RollData>()
+    private val rolls = mutableListOf<Roll>()
     private var editing = false
     private var set: DieSetData? = null
     //</editor-fold>
@@ -42,6 +43,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app), KoinComponent, Co
     }
 
     fun rollSet(id: UUID) {
+        if (set != null)
+            return
         launch {
             val response = repo.getSet(id)
             if (response.isFailure) {
@@ -122,7 +125,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app), KoinComponent, Co
     }
 
     fun clearRolls() {
-        rolls.clear()
+        updateRolls()
         updateState()
     }
 
@@ -167,9 +170,27 @@ class MainViewModel(app: Application) : AndroidViewModel(app), KoinComponent, Co
     }
 
     private fun updateRolls(vararg newRolls: RollData) {
+        val calculated = newRolls.toList().flatMap {
+            if (it.die == Die.Mod) {
+                listOf(Roll.Modifier(it.value.toString()), Roll.Modifier("+"))
+            } else {
+                listOf(Roll.Result(it.die, it.value), Roll.Modifier("+"))
+            }
+        }.toMutableList()
+
+        when (calculated.size) {
+            0 -> calculated.clear() //no rolls were added
+            2 -> calculated.removeAt(1) //remove the modifier
+            else -> {
+                calculated.removeAt(calculated.size - 1)
+                calculated.add(Roll.Modifier("="))
+                calculated.add(Roll.Modifier(newRolls.sumBy { it.value }.toString()))
+            }
+        }
+
         synchronized(rolls) {
             rolls.clear()
-            rolls.addAll(newRolls.toList())
+            rolls.addAll(calculated)
         }
     }
 

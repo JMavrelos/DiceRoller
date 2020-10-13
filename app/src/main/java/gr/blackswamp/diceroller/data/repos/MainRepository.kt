@@ -90,9 +90,13 @@ class MainRepository : KoinComponent {
             val rolls = mutableListOf<RollData>()
             set.dice.forEach { (die, times) ->
                 yield()
-                repeat((1..times).count()) {
-                    yield()
-                    rolls.add(RollData(die, generateValue(die)))
+                if (die == Die.Mod) {
+                    rolls.add(RollData(die, times))
+                } else {
+                    repeat((1..times).count()) {
+                        yield()
+                        rolls.add(RollData(die, generateValue(die)))
+                    }
                 }
             }
             rolls

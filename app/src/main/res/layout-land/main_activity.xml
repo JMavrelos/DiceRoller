@@ -211,7 +211,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -229,22 +229,10 @@
         app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/dice"
-        app:layout_constraintStart_toEndOf="@id/sets"
+        app:layout_constraintStart_toEndOf="@id/action1"
         app:layout_constraintTop_toTopOf="parent"
-        app:spanCount="4"
         tools:itemCount="13"
-        tools:listitem="@layout/list_item_roll" />
-
-    <View
-        android:id="@+id/film"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:alpha="0"
-        android:background="?colorOnBackground"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/dice"
-        app:layout_constraintStart_toEndOf="@id/sets"
-        app:layout_constraintTop_toTopOf="parent" />
+        tools:listitem="@layout/list_item_result" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/help"
@@ -262,8 +250,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
         app:fabSize="mini"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/action2" />
+        app:layout_constraintBottom_toTopOf="@id/action2"
+        app:layout_constraintStart_toEndOf="@id/sets" />
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -272,8 +260,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
         app:fabSize="mini"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/action1" />
+        app:layout_constraintBottom_toTopOf="@id/action1"
+        app:layout_constraintStart_toEndOf="@id/sets" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/action1"
