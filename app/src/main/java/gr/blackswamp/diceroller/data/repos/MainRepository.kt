@@ -57,7 +57,7 @@ class MainRepository : KoinComponent {
     }
 
     suspend fun getSet(id: UUID): Reply<DieSetData> =
-        tryWithReply { db.dieSetDao.getSet(id).toData() }
+        tryWithReply { db.dieSetDao.getSet(id)?.toData() ?: throw Throwable("Set with id $id not found") }
 
 
     suspend fun delete(set: DieSetData): Reply<Unit> =
