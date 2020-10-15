@@ -7,7 +7,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
-import gr.blackswamp.diceroller.data.repos.MainRepository
+import gr.blackswamp.diceroller.data.repos.HomeRepository
 import gr.blackswamp.diceroller.ui.Die
 import gr.blackswamp.diceroller.ui.DieSetHeader
 import gr.blackswamp.diceroller.ui.MainActivityState
@@ -18,10 +18,10 @@ import org.koin.core.inject
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
-class MainViewModel(app: Application) : AndroidViewModel(app), KoinComponent, CoroutineScope {
+class HomeViewModel(app: Application, private val parent: FragmentParent) : AndroidViewModel(app), KoinComponent, CoroutineScope {
     private val supervisor = SupervisorJob()
     override val coroutineContext: CoroutineContext = supervisor + Dispatchers.Main.immediate
-    private val repo by inject<MainRepository>()
+    private val repo by inject<HomeRepository>()
 
     //<editor-fold desc="variables that represent the current state">
     val sets: LiveData<List<DieSetHeader>> = repo.getSets().map { it }
@@ -136,7 +136,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app), KoinComponent, Co
             if (response.isFailure) {
                 //todo:handle error
             } else {
-                this@MainViewModel.set = null
+                this@HomeViewModel.set = null
                 editing = false
                 updateState()
             }
@@ -156,8 +156,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app), KoinComponent, Co
             if (response.isFailure) {
                 //todo:handle error
             } else {
-                this@MainViewModel.set = null
-                this@MainViewModel.editing = false
+                this@HomeViewModel.set = null
+                this@HomeViewModel.editing = false
                 updateState()
             }
         }

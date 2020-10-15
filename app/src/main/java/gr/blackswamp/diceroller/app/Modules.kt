@@ -4,8 +4,8 @@ import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import androidx.room.Room
 import gr.blackswamp.diceroller.data.db.AppDatabase
-import gr.blackswamp.diceroller.data.repos.MainRepository
-import gr.blackswamp.diceroller.logic.MainViewModel
+import gr.blackswamp.diceroller.data.repos.HomeRepository
+import gr.blackswamp.diceroller.logic.HomeViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.viewmodel.dsl.viewModel
@@ -24,10 +24,11 @@ val applicationModule = module {
     }
 
     //<editor-fold desc="repositories">
-    single { MainRepository() }
+    single { HomeRepository() }
     //</editor-fold>
 
     //<editor-fold desc="viewModels">
-    viewModel { MainViewModel(androidApplication()) }
+    viewModel { }
+    viewModel { HomeViewModel(androidApplication()) }
     //</editor-fold>
 }

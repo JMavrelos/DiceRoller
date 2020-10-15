@@ -10,14 +10,16 @@ import androidx.core.view.isVisible
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import gr.blackswamp.diceroller.R
-import gr.blackswamp.diceroller.databinding.MainActivityBinding
-import gr.blackswamp.diceroller.logic.MainViewModel
+import gr.blackswamp.diceroller.databinding.FragmentHomeBinding
+import gr.blackswamp.diceroller.logic.HomeViewModel
 import gr.blackswamp.diceroller.util.*
+import org.koin.android.viewmodel.compat.SharedViewModelCompat.sharedViewModel
 import org.koin.android.viewmodel.ext.android.viewModel
 
-class MainActivity : AppCompatActivity() {
-    private val binding by lazy { MainActivityBinding.inflate(layoutInflater) }
-    private val vm by viewModel<MainViewModel>()
+class HomeFragment : AppCompatActivity() {
+    private val binding by lazy { FragmentHomeBinding.inflate(layoutInflater) }
+    private val parent by sharedViewModel<MainViewModel>()
+    private val vm by viewModel<HomeViewModel>()
 
     //<editor-fold desc="view bindings">
     private val sets by lazy { binding.sets }

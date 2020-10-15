@@ -17,7 +17,7 @@ import org.koin.core.inject
 import java.util.*
 import kotlin.random.Random
 
-class MainRepository : KoinComponent {
+class HomeRepository : KoinComponent {
     private val newSetId by lazy { UUID(0L, 0L) }
     private val db by inject<AppDatabase>()
     private val rnd get() = Random.Default
