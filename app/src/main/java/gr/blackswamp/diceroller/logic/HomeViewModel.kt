@@ -83,7 +83,6 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
                 val nextId = repo.getNextAvailableId()
                 _command.postValue(HomeCommand.ShowNameDialog(nextId))
             }
-//            newSet()
         } else {
             saveSet(current)
         }
@@ -141,10 +140,10 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
         Toast.makeText(getApplication(), "Please Help", Toast.LENGTH_SHORT).show()
     }
 
-    fun clearRolls() {
-        updateRolls()
-        updateState()
-    }
+//    fun clearRolls() {
+//        updateRolls()
+//        updateState()
+//    }
 
     //<editor-fold desc="private functions">
     private fun saveSet(set: DieSetData) {
@@ -188,10 +187,10 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
 
     private fun updateRolls(vararg newRolls: RollData) {
         val calculated = newRolls.toList().flatMap {
-            if (it.die == Die.Mod) {
-                listOf(Roll.Modifier(it.value.toString()), Roll.Modifier("+"))
-            } else {
-                listOf(Roll.Result(it.die, it.value), Roll.Modifier("+"))
+            when {
+                it.die != Die.Mod -> listOf(Roll.Result(it.die, it.value), Roll.Modifier("+"))
+                it.value > 0 -> listOf(Roll.Modifier(it.value.toString()), Roll.Modifier("+"))
+                else -> listOf()
             }
         }.toMutableList()
 

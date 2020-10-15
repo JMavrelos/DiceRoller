@@ -1,9 +1,9 @@
 package gr.blackswamp.diceroller.ui.dialogs
 
+import android.app.AlertDialog
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
@@ -22,27 +22,36 @@ class NameDialog : DialogFragment() {
     private lateinit var binding: DialogNameBinding
 
     private val name by lazy { binding.name }
-    private val ok by lazy { binding.ok }
-    private val cancel by lazy { binding.cancel }
+
     private val args by navArgs<NameDialogArgs>()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = DialogNameBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        ok.setOnClickListener { finished(true) }
-        cancel.setOnClickListener { finished(false) }
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        super.onCreateDialog(savedInstanceState)
+        binding = DialogNameBinding.inflate(LayoutInflater.from(context))
         name.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE)
                 finished(true)
             true
         }
-        name.value = getString(R.string.default_set_name, args.nextId)
-        dialog?.setCancelable(false)
-        dialog?.setTitle(R.string.enter_set_name)
-        dialog?.setCanceledOnTouchOutside(false)
+        if (savedInstanceState == null) {
+            name.value = getString(R.string.default_set_name, args.nextId)
+        }
+
+        val builder = AlertDialog.Builder(context)
+            .setView(binding.root)
+            .setPositiveButton(android.R.string.ok, null)
+            .setNegativeButton(android.R.string.cancel, null)
+            .setCancelable(false)
+        val dialog = builder.create()
+
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.setOnShowListener {
+            name.selectAll()
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener { finished(true) }
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener { finished(false) }
+        }
+        dialog.window?.setBackgroundDrawableResource(R.drawable.bg_dialog)
+        return dialog
     }
 
     private fun finished(submit: Boolean) {
