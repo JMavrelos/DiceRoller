@@ -1,4 +1,4 @@
-package gr.blackswamp.diceroller.ui
+package gr.blackswamp.diceroller.ui.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -8,6 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import gr.blackswamp.diceroller.R
 import gr.blackswamp.diceroller.databinding.ListItemModBinding
 import gr.blackswamp.diceroller.databinding.ListItemResultBinding
+import gr.blackswamp.diceroller.ui.model.Die
+import gr.blackswamp.diceroller.ui.model.Roll
 import gr.blackswamp.diceroller.util.value
 import timber.log.Timber
 

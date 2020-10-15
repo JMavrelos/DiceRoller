@@ -6,6 +6,7 @@ import androidx.room.Room
 import gr.blackswamp.diceroller.data.db.AppDatabase
 import gr.blackswamp.diceroller.data.repos.HomeRepository
 import gr.blackswamp.diceroller.logic.HomeViewModel
+import gr.blackswamp.diceroller.logic.MainViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.viewmodel.dsl.viewModel
@@ -28,7 +29,7 @@ val applicationModule = module {
     //</editor-fold>
 
     //<editor-fold desc="viewModels">
-    viewModel { }
-    viewModel { HomeViewModel(androidApplication()) }
+    viewModel { MainViewModel(androidApplication()) }
+    viewModel { params -> HomeViewModel(androidApplication(), params[0]) }
     //</editor-fold>
 }

@@ -8,7 +8,7 @@ import gr.blackswamp.diceroller.data.db.DieSetHeaderEntity
 import gr.blackswamp.diceroller.logic.DieSetData
 import gr.blackswamp.diceroller.logic.DieSetHeaderData
 import gr.blackswamp.diceroller.logic.RollData
-import gr.blackswamp.diceroller.ui.Die
+import gr.blackswamp.diceroller.ui.model.Die
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield

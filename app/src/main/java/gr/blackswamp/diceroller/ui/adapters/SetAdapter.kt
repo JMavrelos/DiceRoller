@@ -1,4 +1,4 @@
-package gr.blackswamp.diceroller.ui
+package gr.blackswamp.diceroller.ui.adapters
 
 import android.content.Context
 import android.util.TypedValue
@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import gr.blackswamp.diceroller.R
 import gr.blackswamp.diceroller.databinding.ListItemSetBinding
+import gr.blackswamp.diceroller.ui.model.DieSetHeader
 import java.util.*
 
 class SetAdapter(private val listener: (UUID) -> Unit, private val longClickListener: (UUID) -> Unit) : RecyclerView.Adapter<SetAdapter.SetViewHolder>() {

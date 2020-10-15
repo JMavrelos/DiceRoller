@@ -1,4 +1,4 @@
-package gr.blackswamp.diceroller.ui
+package gr.blackswamp.diceroller.ui.model
 
 import java.util.*
 

@@ -8,10 +8,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import gr.blackswamp.diceroller.data.repos.HomeRepository
-import gr.blackswamp.diceroller.ui.Die
-import gr.blackswamp.diceroller.ui.DieSetHeader
-import gr.blackswamp.diceroller.ui.MainActivityState
-import gr.blackswamp.diceroller.ui.Roll
+import gr.blackswamp.diceroller.ui.model.Die
+import gr.blackswamp.diceroller.ui.model.DieSetHeader
+import gr.blackswamp.diceroller.ui.model.MainActivityState
+import gr.blackswamp.diceroller.ui.model.Roll
 import kotlinx.coroutines.*
 import org.koin.core.KoinComponent
 import org.koin.core.inject

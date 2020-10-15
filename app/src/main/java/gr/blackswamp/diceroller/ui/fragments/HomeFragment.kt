@@ -1,25 +1,34 @@
-package gr.blackswamp.diceroller.ui
+package gr.blackswamp.diceroller.ui.fragments
 
 import android.content.res.Configuration
 import android.os.Bundle
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import gr.blackswamp.diceroller.R
 import gr.blackswamp.diceroller.databinding.FragmentHomeBinding
+import gr.blackswamp.diceroller.logic.FragmentParent
 import gr.blackswamp.diceroller.logic.HomeViewModel
+import gr.blackswamp.diceroller.logic.MainViewModel
+import gr.blackswamp.diceroller.ui.adapters.RollAdapter
+import gr.blackswamp.diceroller.ui.adapters.SetAdapter
+import gr.blackswamp.diceroller.ui.model.Die
+import gr.blackswamp.diceroller.ui.model.DieSet
+import gr.blackswamp.diceroller.ui.model.MainActivityState
 import gr.blackswamp.diceroller.util.*
-import org.koin.android.viewmodel.compat.SharedViewModelCompat.sharedViewModel
+import org.koin.android.viewmodel.ext.android.sharedViewModel
 import org.koin.android.viewmodel.ext.android.viewModel
+import org.koin.core.KoinComponent
+import org.koin.core.parameter.parametersOf
 
-class HomeFragment : AppCompatActivity() {
+class HomeFragment : Fragment(), KoinComponent {
     private val binding by lazy { FragmentHomeBinding.inflate(layoutInflater) }
-    private val parent by sharedViewModel<MainViewModel>()
-    private val vm by viewModel<HomeViewModel>()
+    private val parent: FragmentParent by sharedViewModel<MainViewModel>()
+    private val vm by viewModel<HomeViewModel> { parametersOf(parent) }
 
     //<editor-fold desc="view bindings">
     private val sets by lazy { binding.sets }

@@ -1,8 +1,8 @@
 package gr.blackswamp.diceroller.logic
 
-import gr.blackswamp.diceroller.ui.Die
-import gr.blackswamp.diceroller.ui.DieSet
-import gr.blackswamp.diceroller.ui.DieSetHeader
+import gr.blackswamp.diceroller.ui.model.Die
+import gr.blackswamp.diceroller.ui.model.DieSet
+import gr.blackswamp.diceroller.ui.model.DieSetHeader
 import java.util.*
 
 data class DieSetHeaderData(

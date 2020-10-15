@@ -11,7 +11,7 @@
         android:supportsRtl="true"
         android:fullBackupContent="@xml/backup_descriptor"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.HomeFragment">
+        <activity android:name=".ui.fragments.HomeFragment">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
