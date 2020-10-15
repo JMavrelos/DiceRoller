@@ -2,11 +2,15 @@ package gr.blackswamp.diceroller.ui.fragments
 
 import android.content.res.Configuration
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
+import androidx.navigation.fragment.findNavController
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import gr.blackswamp.diceroller.R
@@ -16,9 +20,11 @@ import gr.blackswamp.diceroller.logic.HomeViewModel
 import gr.blackswamp.diceroller.logic.MainViewModel
 import gr.blackswamp.diceroller.ui.adapters.RollAdapter
 import gr.blackswamp.diceroller.ui.adapters.SetAdapter
+import gr.blackswamp.diceroller.ui.commands.HomeCommand
+import gr.blackswamp.diceroller.ui.dialogs.NameDialog
 import gr.blackswamp.diceroller.ui.model.Die
 import gr.blackswamp.diceroller.ui.model.DieSet
-import gr.blackswamp.diceroller.ui.model.MainActivityState
+import gr.blackswamp.diceroller.ui.model.HomeFragmentState
 import gr.blackswamp.diceroller.util.*
 import org.koin.android.viewmodel.ext.android.sharedViewModel
 import org.koin.android.viewmodel.ext.android.viewModel
@@ -58,22 +64,21 @@ class HomeFragment : Fragment(), KoinComponent {
     private val inPortrait by lazy { resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT }
     //</editor-fold>
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
+        binding.root
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(R.style.AppTheme)
-        super.onCreate(savedInstanceState)
-        setContentView(binding.root)
-        delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-        val layoutManager = FlexboxLayoutManager(this)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        initView(view)
+        setUpListeners()
+        setUpObservers()
+    }
+
+    private fun initView(view: View) {
+        val layoutManager = FlexboxLayoutManager(view.context)
         layoutManager.flexDirection = FlexDirection.ROW
-//        layoutManager.flexWrap = FlexWrap.NOWRAP
-//        layoutManager.justifyContent = JustifyContent.SPACE_AROUND
-//        layoutManager.alignItems = AlignItems.CENTER
         rolls.layoutManager = layoutManager
         rolls.adapter = rollAdapter
         sets.adapter = setAdapter
-        setUpListeners()
-        setUpObservers()
     }
 
     private fun setUpListeners() {
@@ -114,16 +119,30 @@ class HomeFragment : Fragment(), KoinComponent {
         d100.setOnClickListener { vm.roll(Die.Mod) }
 
         help.setOnClickListener { vm.pleaseHelpMe() }
-    }
 
+        setFragmentResultListener(NameDialog.REQUEST_ID, this::dialogFinished)
+    }
 
     private fun setUpObservers() {
-        vm.state.observe(this, this::updateState)
-        vm.sets.observe(this, setAdapter::submit)
+        vm.state.observe(viewLifecycleOwner, this::updateState)
+        vm.sets.observe(viewLifecycleOwner, setAdapter::submit)
+        vm.command.observe(viewLifecycleOwner, this::executeCommand)
     }
 
+    private fun executeCommand(cmd: HomeCommand?) {
+        when (cmd) {
+            is HomeCommand.ShowNameDialog -> findNavController().navigate(HomeFragmentDirections.showNameInput(cmd.nextId))
 
-    private fun updateState(state: MainActivityState?) {
+        }
+    }
+
+    private fun dialogFinished(key: String, bundle: Bundle) {
+        if (key == NameDialog.REQUEST_ID) {
+            bundle.getString(NameDialog.RESULT_NAME)?.let(vm::nameSelected)
+        }
+    }
+
+    private fun updateState(state: HomeFragmentState?) {
         if (state == null)
             return
         rollAdapter.submit(state.rolls)
@@ -153,7 +172,6 @@ class HomeFragment : Fragment(), KoinComponent {
         dieGroup.enabled = state.set == null
         numberGroup.visible = state.set != null
     }
-
 
     private fun updateAction(imageView: ImageView, @DrawableRes resId: Int, visible: Boolean) {
         if (resId != -1) {

@@ -2,6 +2,7 @@ package gr.blackswamp.diceroller.data.repos
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
+import androidx.sqlite.db.SimpleSQLiteQuery
 import gr.blackswamp.diceroller.data.db.AppDatabase
 import gr.blackswamp.diceroller.data.db.DieSetEntity
 import gr.blackswamp.diceroller.data.db.DieSetHeaderEntity
@@ -38,9 +39,9 @@ class HomeRepository : KoinComponent {
         }
     }
 
-    fun buildNewSet(): DieSetData {
+    fun buildNewSet(name: String): DieSetData {
         return DieSetData(
-            newSetId, "New Set", mapOf(
+            newSetId, name, mapOf(
                 Die.D4 to 0,
                 Die.D6 to 0,
                 Die.D8 to 0,
@@ -100,6 +101,22 @@ class HomeRepository : KoinComponent {
                 }
             }
             rolls
+        }
+    }
+
+    suspend fun getNextAvailableId(): Int {
+        return withContext(Dispatchers.IO) {
+            try {
+                db.query(SimpleSQLiteQuery("SELECT ifNull(max(rowid),0) + 1 FROM die_sets")).use {
+                    if (!it.moveToFirst()) {
+                        1
+                    } else {
+                        it.getInt(0)
+                    }
+                }
+            } catch (t: Throwable) {
+                1
+            }
         }
     }
 

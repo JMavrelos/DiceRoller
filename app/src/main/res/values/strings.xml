@@ -17,4 +17,7 @@
     <string name="save">Save Set</string>
     <string name="die_type">Die Type</string>
     <string name="modifier">Mod</string>
+    <string name="enter_set_name">Enter Set Name</string>
+    <string name="error_create_set">Error while building set , please try again</string>
+    <string name="default_set_name">Set %1$d</string>
 </resources>

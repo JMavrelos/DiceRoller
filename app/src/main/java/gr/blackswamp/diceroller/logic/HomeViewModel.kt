@@ -7,11 +7,14 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
+import gr.blackswamp.diceroller.R
 import gr.blackswamp.diceroller.data.repos.HomeRepository
+import gr.blackswamp.diceroller.ui.commands.HomeCommand
 import gr.blackswamp.diceroller.ui.model.Die
 import gr.blackswamp.diceroller.ui.model.DieSetHeader
-import gr.blackswamp.diceroller.ui.model.MainActivityState
+import gr.blackswamp.diceroller.ui.model.HomeFragmentState
 import gr.blackswamp.diceroller.ui.model.Roll
+import gr.blackswamp.diceroller.util.LiveEvent
 import kotlinx.coroutines.*
 import org.koin.core.KoinComponent
 import org.koin.core.inject
@@ -28,11 +31,12 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
     private val rolls = mutableListOf<Roll>()
     private var editing = false
     private var set: DieSetData? = null
+    private var _state = MutableLiveData(HomeFragmentState())
+    private var _command = LiveEvent<HomeCommand>()
     //</editor-fold>
 
-    private var _state = MutableLiveData(MainActivityState())
-    val state: LiveData<MainActivityState> = _state
-
+    val state: LiveData<HomeFragmentState> = _state
+    val command: LiveData<HomeCommand> = _command
 
     fun roll(die: Die) {
         val set = _state.value?.set as? DieSetData
@@ -75,9 +79,22 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
     fun action1() {
         val current = this.set
         if (current == null) {
-            newSet()
+            launch {
+                val nextId = repo.getNextAvailableId()
+                _command.postValue(HomeCommand.ShowNameDialog(nextId))
+            }
+//            newSet()
         } else {
             saveSet(current)
+        }
+    }
+
+    fun nameSelected(name: String) {
+        val current = this.set
+        if (current != null) {
+            parent.showError(R.string.error_create_set)
+        } else {
+            newSet(name)
         }
     }
 
@@ -143,8 +160,8 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
         }
     }
 
-    private fun newSet() {
-        set = repo.buildNewSet()
+    private fun newSet(name: String) {
+        set = repo.buildNewSet(name)
         updateRolls()
         editing = false
         updateState()
@@ -196,7 +213,7 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
 
     private fun updateState() {
         _state.postValue(
-            MainActivityState(rolls = this.rolls, set = this.set, editing = this.editing)
+            HomeFragmentState(rolls = this.rolls, set = this.set, editing = this.editing)
         )
     }
     //</editor-fold>

@@ -2,12 +2,12 @@ package gr.blackswamp.diceroller.ui.model
 
 import java.util.*
 
-sealed class Roll(val viewType: Int) {
-    class Result(val die: Die, val value: Int) : Roll(0)
-    class Modifier(val text: String) : Roll(1)
+sealed class Roll() {
+    class Result(val die: Die, val value: Int) : Roll()
+    class Modifier(val text: String) : Roll()
 }
 
-data class MainActivityState(
+data class HomeFragmentState(
     val rolls: List<Roll> = listOf(),
     val set: DieSet? = null,
     val editing: Boolean = false
