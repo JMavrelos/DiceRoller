@@ -15,4 +15,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app), FragmentParent {
     override fun showError(id: Int) {
         _error.postValue(getApplication<Application>().getString(id))
     }
+
+    override fun showHelp() {
+        TODO("Not yet implemented")
+    }
 }

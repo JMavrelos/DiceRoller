@@ -35,4 +35,20 @@ class MainActivity : AppCompatActivity(), KoinComponent {
             .also { it.show() }
     }
 
+//    fun showHelp() {
+//        val prompt = MaterialTapTargetPrompt.Builder(this)
+//            .setTarget(findViewById(R.id.action1))
+//            .setPrimaryText("primary text")
+//            .setAutoDismiss(false)
+//            .setPromptBackground(FullscreenPromptBackground())
+//            .setSecondaryText("secondary text")
+//            .setPromptStateChangeListener { prompt, state ->
+//                if (state == MaterialTapTargetPrompt.STATE_FOCAL_PRESSED) {
+//                    Toast.makeText(this, "Yay", Toast.LENGTH_SHORT).show()
+//                    prompt.dismiss()
+//                }
+//            }.create()
+//        prompt!!.show()
+//    }
+
 }

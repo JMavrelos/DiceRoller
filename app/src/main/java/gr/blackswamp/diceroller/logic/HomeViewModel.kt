@@ -1,7 +1,6 @@
 package gr.blackswamp.diceroller.logic
 
 import android.app.Application
-import android.widget.Toast
 import androidx.annotation.CallSuper
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -137,7 +136,7 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
     }
 
     fun pleaseHelpMe() {
-        Toast.makeText(getApplication(), "Please Help", Toast.LENGTH_SHORT).show()
+        parent.showHelp()
     }
 
 //    fun clearRolls() {
