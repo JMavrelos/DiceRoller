@@ -132,7 +132,7 @@ class HomeFragment : Fragment(), KoinComponent {
     private fun executeCommand(cmd: HomeCommand?) {
         when (cmd) {
             is HomeCommand.ShowNameDialog -> findNavController().navigate(HomeFragmentDirections.showNameInput(cmd.nextId))
-
+            is HomeCommand.ShowHelp -> findNavController().navigate(HomeFragmentDirections.showHelp())
         }
     }
 
@@ -222,5 +222,4 @@ class HomeFragment : Fragment(), KoinComponent {
         d20number.value.value = dieSet?.dice?.get(Die.D20)?.toString() ?: ""
         modNumber.value.value = dieSet?.dice?.get(Die.Mod)?.toString() ?: ""
     }
-
 }

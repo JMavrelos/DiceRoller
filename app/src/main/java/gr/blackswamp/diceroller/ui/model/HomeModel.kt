@@ -2,7 +2,7 @@ package gr.blackswamp.diceroller.ui.model
 
 import java.util.*
 
-sealed class Roll() {
+sealed class Roll {
     class Result(val die: Die, val value: Int) : Roll()
     class Modifier(val text: String) : Roll()
 }
@@ -33,4 +33,3 @@ enum class Die {
     D20,
     Mod
 }
-

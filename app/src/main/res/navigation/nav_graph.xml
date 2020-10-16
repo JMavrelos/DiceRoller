@@ -13,6 +13,9 @@
         <action
             android:id="@+id/show_name_input"
             app:destination="@id/name_dest" />
+        <action
+            android:id="@+id/show_help"
+            app:destination="@+id/help_dest" />
     </fragment>
 
     <dialog
@@ -25,4 +28,9 @@
             android:defaultValue="1"
             app:nullable="false" />
     </dialog>
+    <dialog
+        android:id="@+id/help_dest"
+        android:name="gr.blackswamp.diceroller.ui.dialogs.HelpDialog"
+        android:label="@string/instructions"
+        tools:layout="@layout/dialog_help" />
 </navigation>

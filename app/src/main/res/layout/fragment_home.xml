@@ -221,17 +221,20 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rolls"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin"
         android:layout_marginEnd="@dimen/activity_horizontal_margin"
         app:layout_constrainedHeight="true"
+        app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toTopOf="@id/action1"
         app:layout_constraintEnd_toStartOf="@id/dice"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/help"
         tools:itemCount="13"
-        tools:listitem="@layout/list_item_result" />
+        tools:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        tools:listitem="@layout/list_item_result"
+        tools:spanCount="4" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/help"

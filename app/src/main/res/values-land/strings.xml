@@ -1,0 +1,20 @@
+<resources>
+    <string name="help_rolling_normally_details">Press on one of the dice on the right side to roll that die\nThe result will appear at the center of the screen</string>
+    <string name="help_create_set_details">
+  Press on the plus button at the bottom\n
+  You will be asked to give the set a name\n
+  The right side will be expanded to show you the list of rolls you can add to the set\n
+  You can add how many times each die will be rolled by altering the number next to it\n
+  Next to the MOD label you can add a modifier to be added to the end of your roll\n
+  When you are finished press the save icon on the bottom and the set will appear on the left side of your screen
+    </string>
+    <string name="help_edit_set">Editing an existing set</string>
+    <string name="help_edit_set_details">
+  To edit an existing set long press on the set\'s name\n
+  If you did it correctly the set\'s name will light up and the editing panel will expand\n
+  You can then alter the set and save the set using the save button on the bottom side\n
+  Or delete the set by using the delete button next to he save button
+    </string>
+
+
+</resources>

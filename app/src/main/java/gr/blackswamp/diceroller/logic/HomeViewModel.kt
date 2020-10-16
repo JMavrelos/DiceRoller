@@ -34,8 +34,10 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
     private var _command = LiveEvent<HomeCommand>()
     //</editor-fold>
 
+    //<editor-fold desc="Live Data">
     val state: LiveData<HomeFragmentState> = _state
     val command: LiveData<HomeCommand> = _command
+    //</editor-fold>
 
     fun roll(die: Die) {
         val set = _state.value?.set as? DieSetData
@@ -136,13 +138,9 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
     }
 
     fun pleaseHelpMe() {
-        parent.showHelp()
+        _command.postValue(HomeCommand.ShowHelp)
+        updateState()
     }
-
-//    fun clearRolls() {
-//        updateRolls()
-//        updateState()
-//    }
 
     //<editor-fold desc="private functions">
     private fun saveSet(set: DieSetData) {
