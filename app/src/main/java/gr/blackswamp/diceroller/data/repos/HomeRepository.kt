@@ -1,11 +1,13 @@
 package gr.blackswamp.diceroller.data.repos
 
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import androidx.sqlite.db.SimpleSQLiteQuery
 import gr.blackswamp.diceroller.data.db.AppDatabase
 import gr.blackswamp.diceroller.data.db.DieSetEntity
 import gr.blackswamp.diceroller.data.db.DieSetHeaderEntity
+import gr.blackswamp.diceroller.data.rnd.RandomGenerator
 import gr.blackswamp.diceroller.logic.DieSetData
 import gr.blackswamp.diceroller.logic.DieSetHeaderData
 import gr.blackswamp.diceroller.logic.RollData
@@ -14,20 +16,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import org.koin.core.KoinComponent
+import org.koin.core.get
 import org.koin.core.inject
 import java.util.*
-import kotlin.random.Random
 
 class HomeRepository : KoinComponent {
     private val newSetId by lazy { UUID(0L, 0L) }
     private val db by inject<AppDatabase>()
-    private val rnd get() = Random.Default
+    private val rnd get() = get<RandomGenerator>()
 
     fun getSets(): LiveData<List<DieSetHeaderData>> {
         return db.dieSetDao.getSetHeaders().map { it.map(DieSetHeaderEntity::toData) }
     }
 
-    fun generateValue(die: Die): Int {
+    suspend fun generateValue(die: Die): Int {
         return when (die) {
             Die.D4 -> rnd.nextInt(4) + 1
             Die.D6 -> rnd.nextInt(6) + 1
@@ -53,8 +55,12 @@ class HomeRepository : KoinComponent {
         )
     }
 
-    fun exists(dieSet: DieSetData): Boolean {
-        return (dieSet.id != newSetId)
+    suspend fun exists(dieSet: DieSetData): Boolean {
+        return try {
+            dieSet.id != newSetId && db.dieSetDao.getSet(dieSet.id) != null
+        } catch (ignored: Throwable) {
+            false
+        }
     }
 
     suspend fun getSet(id: UUID): Reply<DieSetData> =
@@ -123,7 +129,8 @@ class HomeRepository : KoinComponent {
 
 }
 
-private fun DieSetEntity.toData(): DieSetData {
+@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+internal fun DieSetEntity.toData(): DieSetData {
     val map = mutableMapOf(
         Die.D4 to this.d4s,
         Die.D6 to this.d6s,
@@ -136,7 +143,8 @@ private fun DieSetEntity.toData(): DieSetData {
     return DieSetData(this.id, this.name, map)
 }
 
-private fun DieSetData.toEntity(): DieSetEntity {
+@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+internal fun DieSetData.toEntity(): DieSetEntity {
     return DieSetEntity(
         this.id, this.name, this.dice[Die.D4] ?: 0,
         this.dice[Die.D6] ?: 0,
@@ -146,10 +154,10 @@ private fun DieSetData.toEntity(): DieSetEntity {
         this.dice[Die.D20] ?: 0,
         this.dice[Die.Mod] ?: 0,
     )
-
 }
 
-private fun DieSetHeaderEntity.toData(): DieSetHeaderData =
+@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+internal fun DieSetHeaderEntity.toData(): DieSetHeaderData =
     DieSetHeaderData(this.id, this.name)
 
 

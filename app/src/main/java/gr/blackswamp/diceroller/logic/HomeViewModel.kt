@@ -42,8 +42,10 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
     fun roll(die: Die) {
         val set = _state.value?.set as? DieSetData
         if (set == null) {
-            updateRolls(RollData(die, repo.generateValue(die)))
-            updateState()
+            launch {
+                updateRolls(RollData(die, repo.generateValue(die)))
+                updateState()
+            }
         }
     }
 
@@ -101,18 +103,22 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
     fun action2() {
         val current = this.set
         if (current != null) {
-            if (repo.exists(current)) {
-                deleteSet(current)
-            } else {
-                cancelEdit()
+            launch {
+                if (repo.exists(current)) {
+                    deleteSet(current)
+                } else {
+                    cancelEdit()
+                }
             }
         }
     }
 
     fun action3() {
         val current = this.set
-        if (current != null && repo.exists(current)) {
-            cancelEdit()
+        launch {
+            if (current != null && repo.exists(current)) {
+                cancelEdit()
+            }
         }
     }
 
@@ -163,16 +169,14 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
         updateState()
     }
 
-    private fun deleteSet(set: DieSetData) {
-        launch {
-            val response = repo.delete(set)
-            if (response.isFailure) {
-                //todo:handle error
-            } else {
-                this@HomeViewModel.set = null
-                this@HomeViewModel.editing = false
-                updateState()
-            }
+    private suspend fun deleteSet(set: DieSetData) {
+        val response = repo.delete(set)
+        if (response.isFailure) {
+            //todo:handle error
+        } else {
+            this@HomeViewModel.set = null
+            this@HomeViewModel.editing = false
+            updateState()
         }
     }
 
@@ -193,7 +197,11 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
 
         when (calculated.size) {
             0 -> calculated.clear() //no rolls were added
-            2 -> calculated.removeAt(1) //remove the modifier
+            2 -> {
+                calculated.removeAt(1) //remove the modifier
+                if ((calculated[0] as? Roll.Result)?.die == Die.Mod)
+                    calculated.add(Roll.Modifier("%")) //add percent sign if the single roll is a d100
+            }
             else -> {
                 calculated.removeAt(calculated.size - 1)
                 calculated.add(Roll.Modifier("="))
