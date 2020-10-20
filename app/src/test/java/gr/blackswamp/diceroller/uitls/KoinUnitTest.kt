@@ -6,6 +6,11 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -19,6 +24,7 @@ import org.koin.test.KoinTest
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.Mockito.mock
 
+@ExperimentalCoroutinesApi
 abstract class KoinUnitTest : KoinTest {
     companion object {
         const val APP_STRING = "message"
@@ -30,6 +36,7 @@ abstract class KoinUnitTest : KoinTest {
     protected abstract val modules: Module
     protected open val stringInjections = mapOf<Int, String>()
     protected val app: Application = mock(Application::class.java)
+    private val dispatcher = TestCoroutineDispatcher()
 
     @Before
     @CallSuper
@@ -44,6 +51,7 @@ abstract class KoinUnitTest : KoinTest {
         }
         reset(app)
         setUpApplicationMocks()
+        Dispatchers.setMain(dispatcher)
     }
 
     private fun setUpApplicationMocks() {
@@ -59,6 +67,8 @@ abstract class KoinUnitTest : KoinTest {
     open fun tearDown() {
         unloadKoinModules(modules)
         stopKoin()
+        Dispatchers.resetMain()
+        dispatcher.cleanupTestCoroutines()
     }
 
 }

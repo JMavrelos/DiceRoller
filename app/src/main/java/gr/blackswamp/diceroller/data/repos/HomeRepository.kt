@@ -16,14 +16,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import org.koin.core.KoinComponent
-import org.koin.core.get
 import org.koin.core.inject
 import java.util.*
 
 class HomeRepository : KoinComponent {
+    companion object {
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal val NEXT_ROW_ID_QUERY = "SELECT ifNull(max(rowid),0) + 1 FROM die_sets"
+    }
+
     private val newSetId by lazy { UUID(0L, 0L) }
     private val db by inject<AppDatabase>()
-    private val rnd get() = get<RandomGenerator>()
+    private val rnd by inject<RandomGenerator>()
 
     fun getSets(): LiveData<List<DieSetHeaderData>> {
         return db.dieSetDao.getSetHeaders().map { it.map(DieSetHeaderEntity::toData) }
@@ -75,12 +79,12 @@ class HomeRepository : KoinComponent {
             if (set.id == newSetId) {
                 val newEntity = set.toEntity().copy(id = UUID.randomUUID())
                 db.dieSetDao.insert(newEntity)
-                newEntity.toData()
+                newEntity
             } else {
                 val newEntity = set.toEntity()
                 db.dieSetDao.update(newEntity)
-                newEntity.toData()
-            }
+                newEntity
+            }.toData()
         }
 
     private suspend fun <T> tryWithReply(action: suspend () -> T): Reply<T> {
@@ -113,7 +117,7 @@ class HomeRepository : KoinComponent {
     suspend fun getNextAvailableId(): Int {
         return withContext(Dispatchers.IO) {
             try {
-                db.query(SimpleSQLiteQuery("SELECT ifNull(max(rowid),0) + 1 FROM die_sets")).use {
+                db.query(SimpleSQLiteQuery(NEXT_ROW_ID_QUERY)).use {
                     if (!it.moveToFirst()) {
                         1
                     } else {

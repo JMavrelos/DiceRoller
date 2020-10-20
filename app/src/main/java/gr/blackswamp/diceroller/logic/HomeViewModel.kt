@@ -2,6 +2,7 @@ package gr.blackswamp.diceroller.logic
 
 import android.app.Application
 import androidx.annotation.CallSuper
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -27,10 +28,14 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
 
     //<editor-fold desc="variables that represent the current state">
     val sets: LiveData<List<DieSetHeader>> = repo.getSets().map { it }
+
     private val rolls = mutableListOf<Roll>()
     private var editing = false
     private var set: DieSetData? = null
-    private var _state = MutableLiveData(HomeFragmentState())
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    @Suppress("PropertyName")
+    internal val _state = MutableLiveData(HomeFragmentState())
     private var _command = LiveEvent<HomeCommand>()
     //</editor-fold>
 

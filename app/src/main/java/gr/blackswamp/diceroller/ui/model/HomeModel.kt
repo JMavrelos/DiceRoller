@@ -3,8 +3,8 @@ package gr.blackswamp.diceroller.ui.model
 import java.util.*
 
 sealed class Roll {
-    class Result(val die: Die, val value: Int) : Roll()
-    class Modifier(val text: String) : Roll()
+    data class Result(val die: Die, val value: Int) : Roll()
+    data class Modifier(val text: String) : Roll()
 }
 
 data class HomeFragmentState(

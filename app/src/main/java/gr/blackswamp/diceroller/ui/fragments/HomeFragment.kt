@@ -124,6 +124,8 @@ class HomeFragment : Fragment(), KoinComponent {
     }
 
     private fun setUpObservers() {
+        vm._state.observe(viewLifecycleOwner, this::updateState)
+
         vm.state.observe(viewLifecycleOwner, this::updateState)
         vm.sets.observe(viewLifecycleOwner, setAdapter::submit)
         vm.command.observe(viewLifecycleOwner, this::executeCommand)
