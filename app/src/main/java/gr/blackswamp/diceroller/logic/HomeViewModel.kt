@@ -48,7 +48,8 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
         val set = _state.value?.set as? DieSetData
         if (set == null) {
             launch {
-                updateRolls(RollData(die, repo.generateValue(die)))
+                val calculated = listOf(RollData(die, repo.generateValue(die))).toRolls()
+                updateRolls(calculated)
                 updateState()
             }
         }
@@ -64,8 +65,8 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
             } else {
                 val rollSet = response.getOrNull() ?: return@launch
                 val rolls = repo.generateRolls(rollSet)
-                updateRolls(*rolls.toTypedArray(), modifier = rollSet.modifier)
-
+                val calculated = rolls.toRolls(rollSet.modifier)
+                updateRolls(calculated)
                 updateState()
             }
         }
@@ -78,7 +79,7 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
                 //todo:handle error
             } else {
                 set = response.getOrNull()
-                updateRolls()
+                updateRolls(listOf())
                 editing = true
                 updateState()
             }
@@ -170,7 +171,7 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
 
     private fun newSet(name: String) {
         set = repo.buildNewSet(name)
-        updateRolls()
+        updateRolls(listOf())
         editing = false
         updateState()
     }
@@ -192,14 +193,18 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
         updateState()
     }
 
-    private fun updateRolls(vararg newRolls: RollData, modifier: Int = 0) {
+    private fun List<RollData>.toRolls(modifier: Int = 0): List<Roll> = transform(this, modifier)
+
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    internal fun transform(rolls: List<RollData>, modifier: Int = 0): List<Roll> {
         var first = true
-        val calculated = newRolls.toList().flatMap {
+        val calculated = rolls.flatMap {
             val reply = mutableListOf<Roll>()
-            if (!first) {
-                reply.add(Roll.Text("+"))
+            if (first)
                 first = false
-            }
+            else
+                reply.add(Roll.Text("+"))
+
             reply.add(Roll.Result(it.die, it.value))
             if (it.die == Die.D100) {
                 reply.add(Roll.Text("%"))
@@ -211,13 +216,18 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
             calculated.addAll(listOf(Roll.Text("+"), Roll.Text(modifier.toString())))
 
         if (calculated.count { it is Roll.Text && it.text == "+" } > 0)
-            calculated.addAll(listOf(Roll.Text("="), Roll.Text(newRolls.sumBy { it.value }.toString())))
+            calculated.addAll(listOf(Roll.Text("="), Roll.Text((rolls.sumBy { it.value } + modifier).toString())))
 
-        synchronized(rolls) {
-            rolls.clear()
-            rolls.addAll(calculated)
+        return calculated
+    }
+
+    private fun updateRolls(rolls: List<Roll>) {
+        synchronized(this.rolls) {
+            this.rolls.clear()
+            this.rolls.addAll(rolls)
         }
     }
+
 
     private fun updateState() {
         _state.postValue(
