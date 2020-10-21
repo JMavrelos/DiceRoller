@@ -16,12 +16,12 @@ object TestData {
     fun buildSet(id: Int) = DieSetEntity(
         UUID.randomUUID(),
         "Set $id",
-        rnd.nextInt(4) + 1,
-        rnd.nextInt(6) + 1,
-        rnd.nextInt(8) + 1,
-        rnd.nextInt(10) + 1,
-        rnd.nextInt(12) + 1,
-        rnd.nextInt(100) + 1,
+        rnd.nextInt(5) + 1,
+        rnd.nextInt(5) + 1,
+        rnd.nextInt(5) + 1,
+        rnd.nextInt(5) + 1,
+        rnd.nextInt(5) + 1,
+        rnd.nextInt(5) + 1,
         rnd.nextInt(5) + 1,
     )
 }

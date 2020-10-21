@@ -39,6 +39,7 @@
   You can then alter the set and save the set using the save button on the lower left side\n
   Or delete the set by using the delete button next to he save button
     </string>
+    <string name="error_loading_set">Error while loading set information</string>
 
 
 </resources>

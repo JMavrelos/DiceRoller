@@ -61,7 +61,7 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
         launch {
             val response = repo.getSet(id)
             if (response.isFailure) {
-                //todo:handle error
+                parent.showError(R.string.error_loading_set)
             } else {
                 val rollSet = response.getOrNull() ?: return@launch
                 val rolls = repo.generateRolls(rollSet)

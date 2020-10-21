@@ -1,11 +1,10 @@
 package gr.blackswamp.diceroller.logic
 
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
-import com.nhaarman.mockitokotlin2.whenever
+import com.nhaarman.mockitokotlin2.*
+import gr.blackswamp.diceroller.R
 import gr.blackswamp.diceroller.TestData
 import gr.blackswamp.diceroller.data.repos.HomeRepository
+import gr.blackswamp.diceroller.data.repos.Reply
 import gr.blackswamp.diceroller.data.repos.toData
 import gr.blackswamp.diceroller.ui.model.Die
 import gr.blackswamp.diceroller.ui.model.Die.*
@@ -23,6 +22,7 @@ import org.junit.Before
 import org.junit.Test
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import java.util.*
 
 @ExperimentalCoroutinesApi
 class HomeViewModelTest : KoinUnitTest() {
@@ -202,22 +202,71 @@ class HomeViewModelTest : KoinUnitTest() {
         }
     }
 
+    @Test
+    fun `roll a set with a set already selected does nothing`() {
+        runBlocking {
+            val startState = HomeFragmentState(set = TestData.SETS.random().toData())
+            vm._state.value = startState
 
-//    @Test
-//    fun `roll a set works correctly`() {
-//        runBlocking {
-//            vm._state.value = HomeFragmentState()
-//            val set = DieSetData(UUID.randomUUID(), "test", mapOf(D4 to 5, D20 to 32), 5)
-//            val expected = listOf(Result(D4, 5), Text("+"), Result(D20, 32), Text("="), Text(37.toString()))
-//
-//            vm.rollSet(set.id)
-//
-//            val rolls = vm._state.value?.rolls
-//            assertNotNull(rolls)
-//
-//            assertEquals(expected, rolls)
-//        }
-//    }
+            vm.rollSet(TestData.SETS.random().id)
+
+            verify(repo, never()).generateRolls(any())
+            assertEquals(startState, vm.state.getOrAwait())
+        }
+    }
+
+    @Test
+    fun `roll a set that doesn't exist shows a message`() {
+        runBlocking {
+            val id = UUID.randomUUID()
+            vm._state.value = HomeFragmentState()
+            whenever(repo.getSet(id)).thenReturn(Reply.failure(Throwable("set with id $id not found")))
+
+            vm.rollSet(id)
+
+            verify(repo).getSet(id)
+            verify(repo).getSets()
+            verifyNoMoreInteractions(repo)
+            verify(parent).showError(R.string.error_loading_set)
+        }
+    }
+
+    @Test
+    fun `roll a valid set updates the state correctly`() {
+        runBlocking {
+            val set = TestData.SETS.random().toData()
+            whenever(repo.getSet(set.id)).thenReturn(Reply.success(set))
+            whenever(repo.generateRolls(set)).thenReturn(listOf(RollData(D4, 3), RollData(D12, 20)))
+            val expected = listOf(Result(D4, 3), Text("+"), Result(D12, 20), Text("+"), Text(set.modifier.toString()), Text("="), Text((23 + set.modifier).toString()))
+
+            vm.rollSet(set.id)
+
+            val rolls = vm.state.getOrAwait().rolls
+            verify(repo).getSet(set.id)
+            verify(repo).getSets()
+            verify(repo).generateRolls(set)
+            verifyNoMoreInteractions(repo)
+            assertEquals(expected, rolls)
+        }
+
+    }
+
+    @Test
+    fun `edit existing set`() {
+        runBlocking {
+            vm._state.value = HomeFragmentState(listOf(Result(D4, 3)), null, false)
+            val set = TestData.SETS.random().toData()
+            val expected = HomeFragmentState(listOf(), set, true)
+            whenever(repo.getSet(set.id)).thenReturn(Reply.success(set))
+
+            vm.editSet(set.id)
+
+            assertEquals(expected, vm._state.getOrAwait())
+            verify(repo).getSet(set.id)
+            verify(repo).getSets()
+            verifyNoMoreInteractions(repo)
+        }
+    }
 
     @Test
     fun `update rolls a set works correctly`() {
