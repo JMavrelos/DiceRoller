@@ -13,7 +13,8 @@ data class DieSetHeaderData(
 data class DieSetData(
     override val id: UUID,
     override val name: String,
-    override val dice: Map<Die, Int> = mapOf()
+    override val dice: Map<Die, Int> = mapOf(),
+    override val modifier: Int = 0
 ) : DieSet
 
 data class RollData(val die: Die, val value: Int)

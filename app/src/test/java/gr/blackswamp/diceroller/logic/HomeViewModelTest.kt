@@ -61,6 +61,126 @@ class HomeViewModelTest : KoinUnitTest() {
     }
 
     @Test
+    fun `roll a d6`() {
+        runBlocking {
+            //setup
+            vm._state.value = HomeFragmentState()
+            whenever(repo.generateValue(Die.D4)).thenReturn(24)
+            val expected = HomeFragmentState(listOf(Roll.Result(Die.D4, 24)))
+
+            //run
+            vm.roll(Die.D4)
+
+            //check
+            verify(repo).generateValue(Die.D4)
+            verify(repo).getSets()
+            verifyNoMoreInteractions(repo)
+            val newState = vm._state.getOrAwait()
+            assertEquals(expected, newState)
+        }
+    }
+
+    @Test
+    fun `roll a d8`() {
+        runBlocking {
+            //setup
+            vm._state.value = HomeFragmentState()
+            whenever(repo.generateValue(Die.D8)).thenReturn(24)
+            val expected = HomeFragmentState(listOf(Roll.Result(Die.D8, 24)))
+
+            //run
+            vm.roll(Die.D8)
+
+            //check
+            verify(repo).generateValue(Die.D8)
+            verify(repo).getSets()
+            verifyNoMoreInteractions(repo)
+            val newState = vm._state.getOrAwait()
+            assertEquals(expected, newState)
+        }
+    }
+
+    @Test
+    fun `roll a d10`() {
+        runBlocking {
+            //setup
+            vm._state.value = HomeFragmentState()
+            whenever(repo.generateValue(Die.D4)).thenReturn(24)
+            val expected = HomeFragmentState(listOf(Roll.Result(Die.D4, 24)))
+
+            //run
+            vm.roll(Die.D4)
+
+            //check
+            verify(repo).generateValue(Die.D4)
+            verify(repo).getSets()
+            verifyNoMoreInteractions(repo)
+            val newState = vm._state.getOrAwait()
+            assertEquals(expected, newState)
+        }
+    }
+
+    @Test
+    fun `roll a d12`() {
+        runBlocking {
+            //setup
+            vm._state.value = HomeFragmentState()
+            whenever(repo.generateValue(Die.D4)).thenReturn(24)
+            val expected = HomeFragmentState(listOf(Roll.Result(Die.D4, 24)))
+
+            //run
+            vm.roll(Die.D4)
+
+            //check
+            verify(repo).generateValue(Die.D4)
+            verify(repo).getSets()
+            verifyNoMoreInteractions(repo)
+            val newState = vm._state.getOrAwait()
+            assertEquals(expected, newState)
+        }
+    }
+
+    @Test
+    fun `roll a d20`() {
+        runBlocking {
+            //setup
+            vm._state.value = HomeFragmentState()
+            whenever(repo.generateValue(Die.D4)).thenReturn(24)
+            val expected = HomeFragmentState(listOf(Roll.Result(Die.D4, 24)))
+
+            //run
+            vm.roll(Die.D4)
+
+            //check
+            verify(repo).generateValue(Die.D4)
+            verify(repo).getSets()
+            verifyNoMoreInteractions(repo)
+            val newState = vm._state.getOrAwait()
+            assertEquals(expected, newState)
+        }
+    }
+
+    @Test
+    fun `roll a percent die`() {
+        runBlocking {
+            //setup
+            vm._state.value = HomeFragmentState()
+            whenever(repo.generateValue(Die.D4)).thenReturn(24)
+            val expected = HomeFragmentState(listOf(Roll.Result(Die.D4, 24)))
+
+            //run
+            vm.roll(Die.D4)
+
+            //check
+            verify(repo).generateValue(Die.D4)
+            verify(repo).getSets()
+            verifyNoMoreInteractions(repo)
+            val newState = vm._state.getOrAwait()
+            assertEquals(expected, newState)
+        }
+    }
+
+    @Test
     fun `roll a d4 but there is a set selected`() {
         runBlocking {
             //setup

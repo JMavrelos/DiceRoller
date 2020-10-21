@@ -66,7 +66,7 @@ class HomeRepositoryTest : KoinUnitTest() {
         runBlocking {
             whenever(rnd.nextInt(100)).thenReturn(32)
 
-            val response = repo.generateValue(Die.Mod)
+            val response = repo.generateValue(Die.D100)
 
             assertEquals(33, response)
             verify(rnd).nextInt(100)
@@ -76,7 +76,7 @@ class HomeRepositoryTest : KoinUnitTest() {
     @Test
     fun `when new set is called an empty set is created`() {
         val name = "hello world"
-        val expected = DieSetData(EmptyUUID, name, mapOf(Die.D4 to 0, Die.D6 to 0, Die.D8 to 0, Die.D10 to 0, Die.D12 to 0, Die.D20 to 0, Die.Mod to 0))
+        val expected = DieSetData(EmptyUUID, name, mapOf(Die.D4 to 0, Die.D6 to 0, Die.D8 to 0, Die.D10 to 0, Die.D12 to 0, Die.D20 to 0))
 
         val response = repo.buildNewSet(name)
 
@@ -126,7 +126,7 @@ class HomeRepositoryTest : KoinUnitTest() {
         val id = UUID.randomUUID()
         val name = "hello world"
         val entity = DieSetEntity(id, name, 1111, 221312, 12312, 312, 31, 2314, 124)
-        val expected = DieSetData(id, name, mapOf(Die.D4 to 1111, Die.D6 to 221312, Die.D8 to 12312, Die.D10 to 312, Die.D12 to 31, Die.D20 to 2314, Die.Mod to 124))
+        val expected = DieSetData(id, name, mapOf(Die.D4 to 1111, Die.D6 to 221312, Die.D8 to 12312, Die.D10 to 312, Die.D12 to 31, Die.D20 to 2314), 124)
 
         val response = entity.toData()
 
@@ -150,7 +150,7 @@ class HomeRepositoryTest : KoinUnitTest() {
         val id = UUID.randomUUID()
         val name = "hello world"
         val expected = DieSetEntity(id, name, 1111, 221312, 12312, 312, 31, 2314, 124)
-        val data = DieSetData(id, name, mapOf(Die.D4 to 1111, Die.D6 to 221312, Die.D8 to 12312, Die.D10 to 312, Die.D12 to 31, Die.D20 to 2314, Die.Mod to 124))
+        val data = DieSetData(id, name, mapOf(Die.D4 to 1111, Die.D6 to 221312, Die.D8 to 12312, Die.D10 to 312, Die.D12 to 31, Die.D20 to 2314), 124)
 
         val response = data.toEntity()
 
@@ -253,7 +253,7 @@ class HomeRepositoryTest : KoinUnitTest() {
             assertEquals(set.dice[Die.D10], captor.firstValue.d10s)
             assertEquals(set.dice[Die.D12], captor.firstValue.d12s)
             assertEquals(set.dice[Die.D20], captor.firstValue.d20s)
-            assertEquals(set.dice[Die.Mod], captor.firstValue.mod)
+            assertEquals(set.modifier, captor.firstValue.mod)
 
             assertEquals(reply.getOrNull(), captor.firstValue.toData())
 
@@ -323,8 +323,7 @@ class HomeRepositoryTest : KoinUnitTest() {
                     Die.D10 to random.nextInt(0, 5),
                     Die.D12 to random.nextInt(0, 5),
                     Die.D20 to random.nextInt(0, 5),
-                    Die.Mod to random.nextInt(0, 5)
-                )
+                ), random.nextInt(0, 5)
             )
 
             val rolls = repo.generateRolls(set)
@@ -336,8 +335,7 @@ class HomeRepositoryTest : KoinUnitTest() {
             assertEquals(set.dice[Die.D10], rolls.count { it.die == Die.D10 })
             assertEquals(set.dice[Die.D12], rolls.count { it.die == Die.D12 })
             assertEquals(set.dice[Die.D20], rolls.count { it.die == Die.D20 })
-            assertEquals(1, rolls.count { it.die == Die.Mod })
-            assertEquals(set.dice[Die.Mod], rolls.first { it.die == Die.Mod }.value)
+            assertEquals(0, rolls.count { it.die == Die.D100 })
         }
     }
 

@@ -38,7 +38,7 @@ class RollAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun getItemViewType(position: Int): Int = when (rolls[position]) {
         is Roll.Result -> R.layout.list_item_result
-        is Roll.Modifier -> R.layout.list_item_mod
+        is Roll.Text -> R.layout.list_item_mod
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -53,7 +53,7 @@ class RollAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         getRoll(position)?.let {
             when (it) {
-                is Roll.Modifier -> (holder as ModViewHolder).update(it)
+                is Roll.Text -> (holder as ModViewHolder).update(it)
                 is Roll.Result -> (holder as ResultViewHolder).update(it)
             }
         }
@@ -62,7 +62,7 @@ class RollAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     class ModViewHolder(binding: ListItemModBinding) : RecyclerView.ViewHolder(binding.root) {
         val text = binding.root
-        fun update(roll: Roll.Modifier) {
+        fun update(roll: Roll.Text) {
             text.value = roll.text
         }
     }
@@ -73,7 +73,7 @@ class RollAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         private val die = binding.die
 
         fun update(roll: Roll.Result) {
-            val text = "${roll.value}${if (roll.die == Die.Mod) "%" else ""}"
+            val text = "${roll.value}${if (roll.die == Die.D100) "%" else ""}"
             value.value = text
             val set = ConstraintSet()
             set.clone(root)
@@ -104,7 +104,7 @@ class RollAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                     resId = R.drawable.ic_d20
                     bias = 0.5f
                 }
-                Die.Mod -> {
+                Die.D100 -> {
                     resId = -1
                     bias = 0.5f
                 }
@@ -128,7 +128,7 @@ class RollAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
             val old = old[oldItemPosition]
             val new = new[newItemPosition]
-            return (old is Roll.Modifier && new is Roll.Modifier && old.text == new.text) ||
+            return (old is Roll.Text && new is Roll.Text && old.text == new.text) ||
                     (old is Roll.Result && new is Roll.Result && old.die == new.die && old.value == new.value)
         }
     }

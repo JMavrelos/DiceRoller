@@ -4,7 +4,7 @@ import java.util.*
 
 sealed class Roll {
     data class Result(val die: Die, val value: Int) : Roll()
-    data class Modifier(val text: String) : Roll()
+    data class Text(val text: String) : Roll()
 }
 
 data class HomeFragmentState(
@@ -17,6 +17,7 @@ interface DieSet {
     val id: UUID
     val name: String
     val dice: Map<Die, Int>
+    val modifier: Int
 }
 
 interface DieSetHeader {
@@ -31,5 +32,5 @@ enum class Die {
     D10,
     D12,
     D20,
-    Mod
+    D100
 }

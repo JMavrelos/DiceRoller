@@ -88,7 +88,7 @@ class HomeFragment : Fragment(), KoinComponent {
         d10number.value.setOnClickListener { vm.clear(Die.D10) }
         d12number.value.setOnClickListener { vm.clear(Die.D12) }
         d20number.value.setOnClickListener { vm.clear(Die.D20) }
-        modNumber.value.setOnClickListener { vm.clear(Die.Mod) }
+        modNumber.value.setOnClickListener { vm.clear(Die.D100) }
 
         d4number.add.setOnClickListener { vm.change(Die.D4, true) }
         d6number.add.setOnClickListener { vm.change(Die.D6, true) }
@@ -96,7 +96,7 @@ class HomeFragment : Fragment(), KoinComponent {
         d10number.add.setOnClickListener { vm.change(Die.D10, true) }
         d12number.add.setOnClickListener { vm.change(Die.D12, true) }
         d20number.add.setOnClickListener { vm.change(Die.D20, true) }
-        modNumber.add.setOnClickListener { vm.change(Die.Mod, true) }
+        modNumber.add.setOnClickListener { vm.change(Die.D100, true) }
 
         d4number.remove.setOnClickListener { vm.change(Die.D4, false) }
         d6number.remove.setOnClickListener { vm.change(Die.D6, false) }
@@ -104,7 +104,7 @@ class HomeFragment : Fragment(), KoinComponent {
         d10number.remove.setOnClickListener { vm.change(Die.D10, false) }
         d12number.remove.setOnClickListener { vm.change(Die.D12, false) }
         d20number.remove.setOnClickListener { vm.change(Die.D20, false) }
-        modNumber.remove.setOnClickListener { vm.change(Die.Mod, false) }
+        modNumber.remove.setOnClickListener { vm.change(Die.D100, false) }
 
         action1.setOnClickListener { vm.action1() }
         action2.setOnClickListener { vm.action2() }
@@ -116,7 +116,7 @@ class HomeFragment : Fragment(), KoinComponent {
         d10.setOnClickListener { vm.roll(Die.D10) }
         d12.setOnClickListener { vm.roll(Die.D12) }
         d20.setOnClickListener { vm.roll(Die.D20) }
-        d100.setOnClickListener { vm.roll(Die.Mod) }
+        d100.setOnClickListener { vm.roll(Die.D100) }
 
         help.setOnClickListener { vm.pleaseHelpMe() }
 
@@ -222,6 +222,6 @@ class HomeFragment : Fragment(), KoinComponent {
         d10number.value.value = dieSet?.dice?.get(Die.D10)?.toString() ?: ""
         d12number.value.value = dieSet?.dice?.get(Die.D12)?.toString() ?: ""
         d20number.value.value = dieSet?.dice?.get(Die.D20)?.toString() ?: ""
-        modNumber.value.value = dieSet?.dice?.get(Die.Mod)?.toString() ?: ""
+        modNumber.value.value = dieSet?.dice?.get(Die.D100)?.toString() ?: ""
     }
 }

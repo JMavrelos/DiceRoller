@@ -41,7 +41,7 @@ class HomeRepository : KoinComponent {
             Die.D10 -> rnd.nextInt(10) + 1
             Die.D12 -> rnd.nextInt(12) + 1
             Die.D20 -> rnd.nextInt(20) + 1
-            Die.Mod -> rnd.nextInt(100) + 1
+            Die.D100 -> rnd.nextInt(100) + 1
         }
     }
 
@@ -54,8 +54,7 @@ class HomeRepository : KoinComponent {
                 Die.D10 to 0,
                 Die.D12 to 0,
                 Die.D20 to 0,
-                Die.Mod to 0
-            )
+            ), 0
         )
     }
 
@@ -101,9 +100,7 @@ class HomeRepository : KoinComponent {
             val rolls = mutableListOf<RollData>()
             set.dice.forEach { (die, times) ->
                 yield()
-                if (die == Die.Mod) {
-                    rolls.add(RollData(die, times))
-                } else {
+                if (die != Die.D100) { //we don't roll d100s in sets
                     repeat((1..times).count()) {
                         yield()
                         rolls.add(RollData(die, generateValue(die)))
@@ -141,10 +138,10 @@ internal fun DieSetEntity.toData(): DieSetData {
         Die.D8 to this.d8s,
         Die.D10 to this.d10s,
         Die.D12 to this.d12s,
-        Die.D20 to this.d20s,
-        Die.Mod to this.mod
+        Die.D20 to this.d20s
     )
-    return DieSetData(this.id, this.name, map)
+
+    return DieSetData(this.id, this.name, map, this.mod)
 }
 
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -156,7 +153,7 @@ internal fun DieSetData.toEntity(): DieSetEntity {
         this.dice[Die.D10] ?: 0,
         this.dice[Die.D12] ?: 0,
         this.dice[Die.D20] ?: 0,
-        this.dice[Die.Mod] ?: 0,
+        this.modifier
     )
 }
 

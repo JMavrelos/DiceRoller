@@ -64,7 +64,8 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
             } else {
                 val rollSet = response.getOrNull() ?: return@launch
                 val rolls = repo.generateRolls(rollSet)
-                updateRolls(*rolls.toTypedArray())
+                updateRolls(*rolls.toTypedArray(), modifier = rollSet.modifier)
+
                 updateState()
             }
         }
@@ -191,28 +192,26 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
         updateState()
     }
 
-    private fun updateRolls(vararg newRolls: RollData) {
+    private fun updateRolls(vararg newRolls: RollData, modifier: Int = 0) {
+        var first = true
         val calculated = newRolls.toList().flatMap {
-            when {
-                it.die != Die.Mod -> listOf(Roll.Result(it.die, it.value), Roll.Modifier("+"))
-                it.value > 0 -> listOf(Roll.Modifier(it.value.toString()), Roll.Modifier("+"))
-                else -> listOf()
+            val reply = mutableListOf<Roll>()
+            if (!first) {
+                reply.add(Roll.Text("+"))
+                first = false
             }
+            reply.add(Roll.Result(it.die, it.value))
+            if (it.die == Die.D100) {
+                reply.add(Roll.Text("%"))
+            }
+            reply
         }.toMutableList()
 
-        when (calculated.size) {
-            0 -> calculated.clear() //no rolls were added
-            2 -> {
-                calculated.removeAt(1) //remove the modifier
-                if ((calculated[0] as? Roll.Result)?.die == Die.Mod)
-                    calculated.add(Roll.Modifier("%")) //add percent sign if the single roll is a d100
-            }
-            else -> {
-                calculated.removeAt(calculated.size - 1)
-                calculated.add(Roll.Modifier("="))
-                calculated.add(Roll.Modifier(newRolls.sumBy { it.value }.toString()))
-            }
-        }
+        if (modifier > 0 && calculated.size > 0)
+            calculated.addAll(listOf(Roll.Text("+"), Roll.Text(modifier.toString())))
+
+        if (calculated.count { it is Roll.Text && it.text == "+" } > 0)
+            calculated.addAll(listOf(Roll.Text("="), Roll.Text(newRolls.sumBy { it.value }.toString())))
 
         synchronized(rolls) {
             rolls.clear()
