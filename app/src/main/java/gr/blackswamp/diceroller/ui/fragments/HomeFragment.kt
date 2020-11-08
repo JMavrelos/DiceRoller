@@ -144,7 +144,7 @@ class HomeFragment : Fragment(), KoinComponent {
     }
 
     private fun updateState(state: HomeState) {
-        dieGroup.enabled = state !is HomeState.Viewing
+        dieGroup.enabled = state is HomeState.Viewing
         numberGroup.visible = state !is HomeState.Viewing
         modNumber.root.visible = state !is HomeState.Viewing
         when (state) {
@@ -224,6 +224,6 @@ class HomeFragment : Fragment(), KoinComponent {
         d10number.value.value = dieSet?.dice?.get(Die.D10)?.toString() ?: ""
         d12number.value.value = dieSet?.dice?.get(Die.D12)?.toString() ?: ""
         d20number.value.value = dieSet?.dice?.get(Die.D20)?.toString() ?: ""
-        modNumber.value.value = dieSet?.dice?.get(Die.D100)?.toString() ?: ""
+        modNumber.value.value = dieSet?.modifier?.toString() ?: ""
     }
 }

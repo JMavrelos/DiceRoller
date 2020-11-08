@@ -145,11 +145,16 @@ class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
             is HomeState.Editing -> current.set as DieSetData
             else -> return
         }
-        val new = set.copy(
-            dice = set.dice.toMutableMap().apply {
-                this[die] = ((this[die] ?: 0) + (if (increase) 1 else -1)).coerceAtLeast(0)
-            }
-        )
+
+        val new = if (die == Die.D100) {
+            set.copy(modifier = (set.modifier + if (increase) 1 else -1).coerceAtLeast(0))
+        } else {
+            set.copy(
+                dice = set.dice.toMutableMap().apply {
+                    this[die] = ((this[die] ?: 0) + (if (increase) 1 else -1)).coerceAtLeast(0)
+                }
+            )
+        }
         if (current is HomeState.Creating) {
             privateState.postValue(HomeState.Creating(new))
         } else if (current is HomeState.Editing) {
