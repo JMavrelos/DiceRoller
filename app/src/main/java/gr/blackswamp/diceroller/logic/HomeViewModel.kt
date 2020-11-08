@@ -3,6 +3,7 @@ package gr.blackswamp.diceroller.logic
 import android.app.Application
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
+import gr.blackswamp.diceroller.core.livedata.LiveEvent
 import gr.blackswamp.diceroller.data.repos.HomeRepository
 import gr.blackswamp.diceroller.data.repos.Reply
 import gr.blackswamp.diceroller.ui.model.*
@@ -16,7 +17,7 @@ class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
 
     @VisibleForTesting
     internal val privateState = MutableLiveData<HomeState>()
-    private val privateEffect = MutableLiveData<HomeEffect>()
+    private val privateEffect = LiveEvent<HomeEffect>()
 
     //<editor-fold desc="live data the fragment can observe">
     val sets: LiveData<List<DieSetHeader>> = repo.getSets().map { it }

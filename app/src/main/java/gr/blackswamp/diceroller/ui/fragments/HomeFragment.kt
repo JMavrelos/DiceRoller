@@ -128,7 +128,6 @@ class HomeFragment : Fragment(), KoinComponent {
         vm.effect.observe(viewLifecycleOwner, this::newEffect)
     }
 
-
     private fun newEffect(effect: HomeEffect) {
         when (effect) {
             is HomeEffect.ShowHelp -> findNavController().navigate(HomeFragmentDirections.showHelp())
