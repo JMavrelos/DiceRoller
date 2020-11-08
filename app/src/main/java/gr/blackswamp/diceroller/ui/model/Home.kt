@@ -19,6 +19,7 @@ sealed class HomeEvent {
     class Roll(val die: Die) : HomeEvent()
     class RollSet(val id: UUID) : HomeEvent()
     class Clear(val die: Die) : HomeEvent()
+    class EditSet(val id: UUID) : HomeEvent()
     class Increase(val die: Die) : HomeEvent()
     class Decrease(val die: Die) : HomeEvent()
     object Action1 : HomeEvent()
@@ -26,7 +27,6 @@ sealed class HomeEvent {
     object Action3 : HomeEvent()
     object Help : HomeEvent()
     class NameSelected(val name: String) : HomeEvent()
-    class EditSet(val id: UUID) : HomeEvent()
 }
 
 sealed class Roll {

@@ -2,6 +2,7 @@ package gr.blackswamp.diceroller.logic
 
 import com.nhaarman.mockitokotlin2.*
 import gr.blackswamp.diceroller.TestData
+import gr.blackswamp.diceroller.TestData.EmptyUUID
 import gr.blackswamp.diceroller.data.repos.HomeRepository
 import gr.blackswamp.diceroller.data.repos.Reply
 import gr.blackswamp.diceroller.data.repos.toData
@@ -29,7 +30,6 @@ import java.util.*
 class HomeViewModelTest : KoinUnitTest() {
     private val repo = mock<HomeRepository>()
     private lateinit var vm: HomeViewModel
-
 
     override val modules: Module = module {
         single { repo }
@@ -282,6 +282,129 @@ class HomeViewModelTest : KoinUnitTest() {
     }
     //</editor-fold>
 
+    //<editor-fold desc="action 1">
+    @Test
+    fun `action 1 when viewing starts creating a new set`() {
+        runBlocking {
+            whenever(repo.getNextAvailableId()).thenReturn(32)
+
+            vm.process(HomeEvent.Action1)
+
+            verify(repo).getNextAvailableId()
+            verify(repo).getSets()
+            verifyNoMoreInteractions(repo)
+            val effect = vm.effect.getOrAwait()
+            assertTrue(effect is HomeEffect.ShowNameDialog)
+            assertEquals(32, (effect as HomeEffect.ShowNameDialog).nextId)
+        }
+    }
+
+    @Test
+    fun `action 1 when editing saves current set`() {
+        runBlocking {
+            val data = TestData.SETS.random().toData()
+            whenever(repo.saveSet(data)).thenReturn(Reply.Success(data))
+            vm.privateState.postValue(HomeState.Editing(data))
+
+            vm.process(HomeEvent.Action1)
+
+            verify(repo).saveSet(data)
+            verify(repo).getSets()
+            verifyNoMoreInteractions(repo)
+            val state = vm.privateState.getOrAwait()
+            assertTrue(state is HomeState.Viewing)
+        }
+    }
+
+    @Test
+    fun `action 1 when editing saves current set but it fails`() {
+        runBlocking {
+            val data = TestData.SETS.random().toData()
+            vm.privateState.postValue(HomeState.Editing(data))
+            whenever(repo.saveSet(data)).thenReturn(Reply.Failure(440))
+
+            vm.process(HomeEvent.Action1)
+
+            verify(repo).getSets()
+            verify(repo).saveSet(data)
+            verifyNoMoreInteractions(repo)
+            val state = vm.privateState.getOrAwait()
+            assertTrue(state is HomeState.Editing)
+            assertEquals(data, (state as HomeState.Editing).set)
+            val effect = vm.effect.getOrAwait()
+            assertTrue(effect is HomeEffect.ShowError)
+            assertEquals(440, (effect as HomeEffect.ShowError).id)
+        }
+    }
+
+    @Test
+    fun `action 1 when creating saves current set`() {
+        runBlocking {
+            val data = TestData.SETS.random().copy(id = EmptyUUID).toData()
+            whenever(repo.saveSet(data)).thenReturn(Reply.Success(data))
+            vm.privateState.postValue(HomeState.Creating(data))
+
+            vm.process(HomeEvent.Action1)
+
+            verify(repo).saveSet(data)
+            verify(repo).getSets()
+            verifyNoMoreInteractions(repo)
+            val state = vm.privateState.getOrAwait()
+            assertTrue(state is HomeState.Viewing)
+        }
+    }
+
+    @Test
+    fun `action 1 when creating saves current set but it fails`() {
+        runBlocking {
+            val data = TestData.SETS.random().copy(id = EmptyUUID).toData()
+            vm.privateState.postValue(HomeState.Creating(data))
+            whenever(repo.saveSet(data)).thenReturn(Reply.Failure(440))
+
+            vm.process(HomeEvent.Action1)
+
+            verify(repo).getSets()
+            verify(repo).saveSet(data)
+            verifyNoMoreInteractions(repo)
+            val state = vm.privateState.getOrAwait()
+            assertTrue(state is HomeState.Creating)
+            assertEquals(data, (state as HomeState.Creating).set)
+            val effect = vm.effect.getOrAwait()
+            assertTrue(effect is HomeEffect.ShowError)
+            assertEquals(440, (effect as HomeEffect.ShowError).id)
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="name has been selected while creating new set">
+    @Test
+    fun `name selected with no error`() {
+        runBlocking {
+            val set = TestData.SETS.random().toData()
+            whenever(repo.buildNewSet("hello world")).thenReturn(Reply.Success(set))
+
+            vm.process(HomeEvent.NameSelected("hello world"))
+
+            val state = vm.state.getOrAwait()
+            assertTrue(state is HomeState.Creating)
+            assertEquals(set, (state as HomeState.Creating).set)
+        }
+    }
+
+    @Test
+    fun `name selected with error`() {
+        runBlocking {
+            whenever(repo.buildNewSet("hello world")).thenReturn(Reply.Failure(33))
+
+            vm.process(HomeEvent.NameSelected("hello world"))
+
+            val state = vm.state.getOrAwait()
+            assertTrue(state is HomeState.Viewing)
+            val effect = vm.effect.getOrAwait()
+            assertEquals(33, (effect as HomeEffect.ShowError).id)
+        }
+    }
+    //</editor-fold>
 
     //<editor-fold desc="roll transformations">
     @Test

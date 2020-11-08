@@ -7,6 +7,7 @@ import kotlin.random.Random
 
 object TestData {
     private val rnd = Random.Default
+    val EmptyUUID = UUID(0L, 0L)
 
     val SETS = (1..100).map(this::buildSet)
     val COUNT get() = SETS.size

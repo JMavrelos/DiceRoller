@@ -13,17 +13,19 @@ import java.util.*
 
 class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
     private val repo by inject<HomeRepository>()
-    private val _state = MutableLiveData<HomeState>()
-    private val _effect = MutableLiveData<HomeEffect>()
+
+    @VisibleForTesting
+    internal val privateState = MutableLiveData<HomeState>()
+    private val privateEffect = MutableLiveData<HomeEffect>()
 
     //<editor-fold desc="live data the fragment can observe">
     val sets: LiveData<List<DieSetHeader>> = repo.getSets().map { it }
-    val state: LiveData<HomeState> = _state
-    val effect: LiveData<HomeEffect> = _effect
+    val state: LiveData<HomeState> = privateState
+    val effect: LiveData<HomeEffect> = privateEffect
     //</editor-fold>
 
     init {
-        _state.postValue(HomeState.Viewing())
+        privateState.value = HomeState.Viewing()
     }
 
 
@@ -42,7 +44,7 @@ class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
             is HomeEvent.Increase -> change(event.die, true)
             is HomeEvent.Decrease -> change(event.die, false)
             is HomeEvent.Clear -> clear(event.die)
-            is HomeEvent.Help -> _effect.postValue(HomeEffect.ShowHelp)
+            is HomeEvent.Help -> privateEffect.postValue(HomeEffect.ShowHelp)
 
         }
     }
@@ -53,7 +55,7 @@ class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
         if (state.value is HomeState.Viewing) {
             viewModelScope.launch {
                 val calculated = listOf(RollData(die, repo.generateValue(die))).toRolls()
-                _state.postValue(HomeState.Viewing(calculated))
+                privateState.postValue(HomeState.Viewing(calculated))
             }
         }
     }
@@ -64,9 +66,9 @@ class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
                 is Reply.Success -> {
                     val rolls = repo.generateRolls(set.data)
                     val calculated = rolls.toRolls(set.data.modifier)
-                    _state.postValue(HomeState.Viewing(calculated))
+                    privateState.postValue(HomeState.Viewing(calculated))
                 }
-                is Reply.Failure -> _effect.postValue(HomeEffect.ShowError(set.messageId))
+                is Reply.Failure -> privateEffect.postValue(HomeEffect.ShowError(set.messageId))
             }
         }
     }
@@ -74,9 +76,9 @@ class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
     private fun editSet(id: UUID) {
         viewModelScope.launch {
             repo.getSet(id).onSuccess {
-                _state.postValue(HomeState.Editing(it))
+                privateState.postValue(HomeState.Editing(it))
             }.onFailure {
-                _effect.postValue(HomeEffect.ShowError(it.messageId))
+                privateEffect.postValue(HomeEffect.ShowError(it.messageId))
             }
         }
     }
@@ -88,7 +90,7 @@ class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
             is HomeState.Viewing -> {
                 viewModelScope.launch {
                     val nextId = repo.getNextAvailableId()
-                    _effect.postValue(HomeEffect.ShowNameDialog(nextId = nextId))
+                    privateEffect.postValue(HomeEffect.ShowNameDialog(nextId = nextId))
                 }
                 return
             }
@@ -97,9 +99,9 @@ class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
 
         viewModelScope.launch {
             repo.saveSet(set).onFailure {
-                _effect.postValue(HomeEffect.ShowError(it.messageId))
+                privateEffect.postValue(HomeEffect.ShowError(it.messageId))
             }.onSuccess {
-                _state.postValue(HomeState.Creating(set))
+                privateState.postValue(HomeState.Viewing())
             }
         }
     }
@@ -107,9 +109,9 @@ class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
     private fun nameSelected(name: String) {
         viewModelScope.launch {
             repo.buildNewSet(name).onFailure {
-                _effect.postValue(HomeEffect.ShowError(it.messageId))
+                privateEffect.postValue(HomeEffect.ShowError(it.messageId))
             }.onSuccess {
-                _state.postValue(HomeState.Creating(it))
+                privateState.postValue(HomeState.Creating(it))
             }
         }
     }
@@ -117,13 +119,13 @@ class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
     private fun action2() {
         val current = state.value
         if (current is HomeState.Creating) {
-            _state.postValue(HomeState.Viewing())
+            privateState.postValue(HomeState.Viewing())
         } else if (current is HomeState.Editing) {
             viewModelScope.launch {
                 repo.delete(current.set as DieSetData).onFailure {
-                    _effect.postValue(HomeEffect.ShowError(it.messageId))
+                    privateEffect.postValue(HomeEffect.ShowError(it.messageId))
                 }.onSuccess {
-                    _state.postValue(HomeState.Viewing())
+                    privateState.postValue(HomeState.Viewing())
                 }
             }
         }
@@ -132,7 +134,7 @@ class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
     private fun action3() {
         val current = state.value
         if (current is HomeState.Editing) {
-            _state.postValue(HomeState.Viewing())
+            privateState.postValue(HomeState.Viewing())
         }
     }
 
@@ -149,9 +151,9 @@ class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
             }
         )
         if (current is HomeState.Creating) {
-            _state.postValue(HomeState.Creating(new))
+            privateState.postValue(HomeState.Creating(new))
         } else if (current is HomeState.Editing) {
-            _state.postValue(HomeState.Editing(new))
+            privateState.postValue(HomeState.Editing(new))
         }
 
     }
@@ -169,9 +171,9 @@ class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
             }
         )
         if (current is HomeState.Creating) {
-            _state.postValue(HomeState.Creating(new))
+            privateState.postValue(HomeState.Creating(new))
         } else if (current is HomeState.Editing) {
-            _state.postValue(HomeState.Editing(new))
+            privateState.postValue(HomeState.Editing(new))
         }
     }
 

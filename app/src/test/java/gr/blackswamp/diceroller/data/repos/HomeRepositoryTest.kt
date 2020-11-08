@@ -205,7 +205,7 @@ class HomeRepositoryTest : KoinUnitTest() {
 
             assertTrue(response.hasError)
             val error = response as Reply.Failure
-            assertEquals("Set with id $id not found", error.exception.message)
+            assertEquals("Set with id $id not found", error.exception?.message)
             assertEquals(R.string.error_set_not_found, error.messageId)
             verify(dao).getSet(id)
             verifyNoMoreInteractions(dao)
@@ -223,7 +223,7 @@ class HomeRepositoryTest : KoinUnitTest() {
 
             assertTrue(response.hasError)
             val error = response as Reply.Failure
-            assertEquals(errorMessage, error.exception.message)
+            assertEquals(errorMessage, error.exception?.message)
             assertEquals(R.string.error_set_not_found, error.messageId)
             verify(dao).getSet(id)
             verifyNoMoreInteractions(dao)
@@ -254,7 +254,7 @@ class HomeRepositoryTest : KoinUnitTest() {
 
             assertTrue(response.hasError)
             val error = response as Reply.Failure
-            assertEquals(errorMessage, error.exception.message)
+            assertEquals(errorMessage, error.exception?.message)
             assertEquals(R.string.error_deleting_set, error.messageId)
             verify(dao).delete(entity.id)
             verifyNoMoreInteractions(dao)
@@ -336,7 +336,7 @@ class HomeRepositoryTest : KoinUnitTest() {
             verify(dao).insert(any())
             verifyNoMoreInteractions(dao)
             assertEquals(R.string.error_saving_set, error.messageId)
-            assertEquals("problem inserting", error.exception.message)
+            assertEquals("problem inserting", error.exception?.message)
         }
     }
 
@@ -354,7 +354,7 @@ class HomeRepositoryTest : KoinUnitTest() {
             verify(dao).update(set.toEntity())
             verifyNoMoreInteractions(dao)
             assertEquals(R.string.error_saving_set, error.messageId)
-            assertEquals("problem updating", error.exception.message)
+            assertEquals("problem updating", error.exception?.message)
         }
     }
 

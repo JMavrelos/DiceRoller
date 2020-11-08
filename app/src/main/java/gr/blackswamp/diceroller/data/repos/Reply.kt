@@ -9,7 +9,7 @@ sealed class Reply<out T : Any> {
     }
 
     data class Success<T : Any>(val data: T) : Reply<T>()
-    data class Failure(@StringRes val messageId: Int, val exception: Throwable) : Reply<Nothing>()
+    data class Failure(@StringRes val messageId: Int, val exception: Throwable? = null) : Reply<Nothing>()
 
     val hasError get() = this is Failure
 
