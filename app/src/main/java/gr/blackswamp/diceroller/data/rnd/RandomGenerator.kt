@@ -13,9 +13,16 @@ class RandomGenerator {
     /**
      * gets a number between 0 and [until] exclusive
      */
+    private var currentSeed = System.currentTimeMillis()
+    private var rnd = Random(currentSeed)
+
     suspend fun nextInt(until: Int): Int {
         return withContext(Dispatchers.IO) {
-            val rnd = Random(System.currentTimeMillis())
+            val newSeed = System.currentTimeMillis()
+            if (newSeed != currentSeed) {
+                currentSeed = newSeed
+                rnd = Random(newSeed)
+            }
             rnd.nextInt(until)
         }
     }

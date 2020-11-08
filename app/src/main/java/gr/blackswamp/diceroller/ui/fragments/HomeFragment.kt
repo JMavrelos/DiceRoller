@@ -14,7 +14,10 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import gr.blackswamp.diceroller.R
-import gr.blackswamp.diceroller.core.widget.*
+import gr.blackswamp.diceroller.core.widget.enabled
+import gr.blackswamp.diceroller.core.widget.res
+import gr.blackswamp.diceroller.core.widget.value
+import gr.blackswamp.diceroller.core.widget.visible
 import gr.blackswamp.diceroller.databinding.FragmentHomeBinding
 import gr.blackswamp.diceroller.logic.FragmentParent
 import gr.blackswamp.diceroller.logic.HomeViewModel
@@ -51,7 +54,6 @@ class HomeFragment : Fragment(), KoinComponent {
     private val d20number by lazy { binding.d20number }
     private val modNumber by lazy { binding.modNumber }
     private val numberGroup by lazy { binding.numberGroup }
-    private val dieGroup: Group2 by lazy { binding.dieGroup }
     private val help by lazy { binding.help }
     private val action1 by lazy { binding.action1 }
     private val action2 by lazy { binding.action2 }
@@ -107,13 +109,13 @@ class HomeFragment : Fragment(), KoinComponent {
         action2.setOnClickListener { vm.process(HomeEvent.Action2) }
         action3.setOnClickListener { vm.process(HomeEvent.Action3) }
 
-        d4.setOnClickListener { vm.process(HomeEvent.Roll(Die.D4)) }
-        d6.setOnClickListener { vm.process(HomeEvent.Roll(Die.D6)) }
-        d8.setOnClickListener { vm.process(HomeEvent.Roll(Die.D8)) }
-        d10.setOnClickListener { vm.process(HomeEvent.Roll(Die.D10)) }
-        d12.setOnClickListener { vm.process(HomeEvent.Roll(Die.D12)) }
-        d20.setOnClickListener { vm.process(HomeEvent.Roll(Die.D20)) }
-        d100.setOnClickListener { vm.process(HomeEvent.Roll(Die.D100)) }
+        d4.setOnClickListener { vm.process(HomeEvent.DieSelect(Die.D4)) }
+        d6.setOnClickListener { vm.process(HomeEvent.DieSelect(Die.D6)) }
+        d8.setOnClickListener { vm.process(HomeEvent.DieSelect(Die.D8)) }
+        d10.setOnClickListener { vm.process(HomeEvent.DieSelect(Die.D10)) }
+        d12.setOnClickListener { vm.process(HomeEvent.DieSelect(Die.D12)) }
+        d20.setOnClickListener { vm.process(HomeEvent.DieSelect(Die.D20)) }
+        d100.setOnClickListener { vm.process(HomeEvent.DieSelect(Die.D100)) }
 
         help.setOnClickListener { vm.process(HomeEvent.Help) }
 
@@ -144,7 +146,6 @@ class HomeFragment : Fragment(), KoinComponent {
     }
 
     private fun updateState(state: HomeState) {
-        dieGroup.enabled = state is HomeState.Viewing
         numberGroup.visible = state !is HomeState.Viewing
         modNumber.root.visible = state !is HomeState.Viewing
         when (state) {
@@ -155,6 +156,8 @@ class HomeFragment : Fragment(), KoinComponent {
                 updateAction(action2, -1, false)
                 updateAction(action3, -1, false)
                 d100.res = R.string.d100
+                d100.enabled = true
+                updateIcons(null)
             }
             is HomeState.Creating -> {
                 rollAdapter.submit(listOf())
@@ -163,7 +166,9 @@ class HomeFragment : Fragment(), KoinComponent {
                 updateAction(action2, R.drawable.ic_cancel, true)
                 updateAction(action3, -1, false)
                 d100.res = R.string.modifier
+                d100.enabled = false
                 updateValues(state.set)
+                updateIcons(state.set)
             }
             is HomeState.Editing -> {
                 rollAdapter.submit(listOf())
@@ -172,7 +177,9 @@ class HomeFragment : Fragment(), KoinComponent {
                 updateAction(action2, R.drawable.ic_delete, true)
                 updateAction(action3, R.drawable.ic_cancel, true)
                 d100.res = R.string.modifier
+                d100.enabled = false
                 updateValues(state.set)
+                updateIcons(state.set)
             }
         }
     }
@@ -217,13 +224,58 @@ class HomeFragment : Fragment(), KoinComponent {
         }
     }
 
-    private fun updateValues(dieSet: DieSet?) {
-        d4number.value.value = dieSet?.dice?.get(Die.D4)?.toString() ?: ""
-        d6number.value.value = dieSet?.dice?.get(Die.D6)?.toString() ?: ""
-        d8number.value.value = dieSet?.dice?.get(Die.D8)?.toString() ?: ""
-        d10number.value.value = dieSet?.dice?.get(Die.D10)?.toString() ?: ""
-        d12number.value.value = dieSet?.dice?.get(Die.D12)?.toString() ?: ""
-        d20number.value.value = dieSet?.dice?.get(Die.D20)?.toString() ?: ""
-        modNumber.value.value = dieSet?.modifier?.toString() ?: ""
+    private fun updateValues(dieSet: DieSet) {
+        d4number.value.value = dieSet.dice[Die.D4]?.times?.toString() ?: ""
+        d6number.value.value = dieSet.dice[Die.D6]?.times?.toString() ?: ""
+        d8number.value.value = dieSet.dice[Die.D8]?.times?.toString() ?: ""
+        d10number.value.value = dieSet.dice[Die.D10]?.times?.toString() ?: ""
+        d12number.value.value = dieSet.dice[Die.D12]?.times?.toString() ?: ""
+        d20number.value.value = dieSet.dice[Die.D20]?.times?.toString() ?: ""
+        modNumber.value.value = dieSet.modifier.toString()
+    }
+
+    private fun updateIcons(dieSet: DieSet?) {
+        if (dieSet?.dice?.get(Die.D4)?.exploding != true) {
+            d4.setIconTintResource(R.color.primaryColor)
+            d4.setIconResource(R.drawable.ic_d4)
+        } else {
+            d4.setIconTintResource(R.color.errorColor)
+            d4.setIconResource(R.drawable.ic_fire)
+        }
+        if (dieSet?.dice?.get(Die.D6)?.exploding != true) {
+            d6.setIconTintResource(R.color.primaryColor)
+            d6.setIconResource(R.drawable.ic_d6)
+        } else {
+            d6.setIconTintResource(R.color.errorColor)
+            d6.setIconResource(R.drawable.ic_fire)
+        }
+        if (dieSet?.dice?.get(Die.D8)?.exploding != true) {
+            d8.setIconTintResource(R.color.primaryColor)
+            d8.setIconResource(R.drawable.ic_d8)
+        } else {
+            d8.setIconTintResource(R.color.errorColor)
+            d8.setIconResource(R.drawable.ic_fire)
+        }
+        if (dieSet?.dice?.get(Die.D10)?.exploding != true) {
+            d10.setIconTintResource(R.color.primaryColor)
+            d10.setIconResource(R.drawable.ic_d10)
+        } else {
+            d10.setIconTintResource(R.color.errorColor)
+            d10.setIconResource(R.drawable.ic_fire)
+        }
+        if (dieSet?.dice?.get(Die.D12)?.exploding != true) {
+            d12.setIconTintResource(R.color.primaryColor)
+            d12.setIconResource(R.drawable.ic_d12)
+        } else {
+            d12.setIconTintResource(R.color.errorColor)
+            d12.setIconResource(R.drawable.ic_fire)
+        }
+        if (dieSet?.dice?.get(Die.D20)?.exploding != true) {
+            d20.setIconTintResource(R.color.primaryColor)
+            d20.setIconResource(R.drawable.ic_d20)
+        } else {
+            d20.setIconTintResource(R.color.errorColor)
+            d20.setIconResource(R.drawable.ic_fire)
+        }
     }
 }

@@ -34,7 +34,7 @@ class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
      */
     fun process(event: HomeEvent) {
         when (event) {
-            is HomeEvent.Roll -> roll(event.die)
+            is HomeEvent.DieSelect -> dieSelected(event.die)
             is HomeEvent.RollSet -> rollSet(event.id)
             is HomeEvent.EditSet -> editSet(event.id)
             is HomeEvent.Action1 -> action1()
@@ -51,13 +51,31 @@ class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
 
 
     //<editor-fold desc="event listeners">
-    private fun roll(die: Die) {
-        if (state.value is HomeState.Viewing) {
-            viewModelScope.launch {
-                val calculated = listOf(RollData(die, repo.generateValue(die))).toRolls()
-                privateState.postValue(HomeState.Viewing(calculated))
+    private fun dieSelected(die: Die) {
+        val current = state.value
+        val set = when (current) {
+            is HomeState.Creating -> current.set as DieSetData
+            is HomeState.Editing -> current.set as DieSetData
+            else -> {
+                viewModelScope.launch {
+                    val calculated = listOf(RollData(die, repo.generateValue(die))).toRolls()
+                    privateState.postValue(HomeState.Viewing(calculated))
+                }
+                return
             }
         }
+
+        val new = if (die != Die.D100) {
+            set.withProperty(die) { DiePropertyData(it.times, !it.exploding) }
+        } else {
+            set.copy()
+        }
+        if (current is HomeState.Creating) {
+            privateState.postValue(HomeState.Creating(new))
+        } else if (current is HomeState.Editing) {
+            privateState.postValue(HomeState.Editing(new))
+        }
+
     }
 
     private fun rollSet(id: UUID) {
@@ -149,18 +167,15 @@ class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
         val new = if (die == Die.D100) {
             set.copy(modifier = (set.modifier + if (increase) 1 else -1).coerceAtLeast(0))
         } else {
-            set.copy(
-                dice = set.dice.toMutableMap().apply {
-                    this[die] = ((this[die] ?: 0) + (if (increase) 1 else -1)).coerceAtLeast(0)
-                }
-            )
+            set.withProperty(die) {
+                DiePropertyData((it.times + if (increase) 1 else -1).coerceAtLeast(0), it.exploding)
+            }
         }
         if (current is HomeState.Creating) {
             privateState.postValue(HomeState.Creating(new))
         } else if (current is HomeState.Editing) {
             privateState.postValue(HomeState.Editing(new))
         }
-
     }
 
     private fun clear(die: Die) {
@@ -170,11 +185,7 @@ class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
             is HomeState.Editing -> current.set as DieSetData
             else -> return
         }
-        val new = set.copy(
-            dice = set.dice.toMutableMap().apply {
-                this[die] = 0
-            }
-        )
+        val new = set.withProperty(die) { DiePropertyData(0, it.exploding) }
         if (current is HomeState.Creating) {
             privateState.postValue(HomeState.Creating(new))
         } else if (current is HomeState.Editing) {
@@ -185,6 +196,21 @@ class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
     //</editor-fold>
 
     //<editor-fold desc="private functions">
+    /**
+     * helper function to alter a specific property of a [die] in die set data by performing an [alteration] on it
+     * @return a copy of the data with the alteration
+     */
+    private fun DieSetData.withProperty(die: Die, alteration: (DiePropertyData) -> DiePropertyData): DieSetData {
+        val newDice = this.dice.toMutableMap()
+        val newProp = newDice[die]
+        return if (newProp != null) {
+            newDice[die] = alteration.invoke(newProp)
+            this.copy(dice = newDice)
+        } else {
+            this.copy()
+        }
+    }
+
     private fun List<RollData>.toRolls(modifier: Int = 0): List<Roll> = transform(this, modifier)
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)

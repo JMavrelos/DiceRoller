@@ -48,5 +48,9 @@
   You can then alter the set and save the set using the save button on the lower left side\n
   Or delete the set by using the delete button next to he save button
     </string>
+    <string name="help_exploding_dice">Exploding dice</string>
+    <string name="help_exploding_dice_details">While editing or creating a new set, you can tap on the die button to set that roll as exploding\n
+  This means that when you roll this die as part of the set and it rolls the maximum value, it will automatically be rolled again and continue doing so while the maximum value is rolled
+    </string>
     <!--</editor-fold>-->
 </resources>

@@ -9,6 +9,7 @@ import gr.blackswamp.diceroller.data.db.AppDatabase
 import gr.blackswamp.diceroller.data.db.DieSetEntity
 import gr.blackswamp.diceroller.data.db.DieSetHeaderEntity
 import gr.blackswamp.diceroller.data.rnd.RandomGenerator
+import gr.blackswamp.diceroller.logic.DiePropertyData
 import gr.blackswamp.diceroller.logic.DieSetData
 import gr.blackswamp.diceroller.logic.DieSetHeaderData
 import gr.blackswamp.diceroller.logic.RollData
@@ -35,15 +36,7 @@ class HomeRepository : KoinComponent {
     }
 
     suspend fun generateValue(die: Die): Int {
-        return when (die) {
-            Die.D4 -> rnd.nextInt(4) + 1
-            Die.D6 -> rnd.nextInt(6) + 1
-            Die.D8 -> rnd.nextInt(8) + 1
-            Die.D10 -> rnd.nextInt(10) + 1
-            Die.D12 -> rnd.nextInt(12) + 1
-            Die.D20 -> rnd.nextInt(20) + 1
-            Die.D100 -> rnd.nextInt(100) + 1
-        }
+        return rnd.nextInt(die.max) + 1
     }
 
     suspend fun buildNewSet(name: String): Reply<DieSetData> {
@@ -53,12 +46,12 @@ class HomeRepository : KoinComponent {
         return Reply.Success(
             DieSetData(
                 newSetId, name, mapOf(
-                    Die.D4 to 0,
-                    Die.D6 to 0,
-                    Die.D8 to 0,
-                    Die.D10 to 0,
-                    Die.D12 to 0,
-                    Die.D20 to 0,
+                    Die.D4 to DiePropertyData(0, false),
+                    Die.D6 to DiePropertyData(0, false),
+                    Die.D8 to DiePropertyData(0, false),
+                    Die.D10 to DiePropertyData(0, false),
+                    Die.D12 to DiePropertyData(0, false),
+                    Die.D20 to DiePropertyData(0, false),
                 ), 0
             )
         )
@@ -80,7 +73,7 @@ class HomeRepository : KoinComponent {
         tryWithReply(R.string.error_deleting_set) { db.dieSetDao.delete(set.id) }
 
     suspend fun saveSet(set: DieSetData): Reply<DieSetData> {
-        if (set.dice.count { it.value > 0 } == 0)
+        if (set.dice.count { it.value.times > 0 } == 0)
             return Reply.Failure(R.string.error_set_with_no_rolls, Throwable("There are no rolls in submitted data"))
         return tryWithReply(R.string.error_saving_set) {
             if (set.id == newSetId) {
@@ -107,12 +100,15 @@ class HomeRepository : KoinComponent {
     suspend fun generateRolls(set: DieSetData): List<RollData> {
         return withContext(Dispatchers.Default) {
             val rolls = mutableListOf<RollData>()
-            set.dice.forEach { (die, times) ->
+            set.dice.forEach { (die, prop) ->
                 yield()
                 if (die != Die.D100) { //we don't roll d100s in sets
-                    repeat((1..times).count()) {
-                        yield()
-                        rolls.add(RollData(die, generateValue(die)))
+                    repeat((1..prop.times).count()) {
+                        do {
+                            yield()
+                            val newValue = generateValue(die)
+                            rolls.add(RollData(die, newValue))
+                        } while (prop.exploding && newValue == die.max)
                     }
                 }
             }
@@ -142,12 +138,12 @@ class HomeRepository : KoinComponent {
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 internal fun DieSetEntity.toData(): DieSetData {
     val map = mutableMapOf(
-        Die.D4 to this.d4s,
-        Die.D6 to this.d6s,
-        Die.D8 to this.d8s,
-        Die.D10 to this.d10s,
-        Die.D12 to this.d12s,
-        Die.D20 to this.d20s
+        Die.D4 to DiePropertyData(this.d4s, this.d4Explode),
+        Die.D6 to DiePropertyData(this.d6s, this.d6Explode),
+        Die.D8 to DiePropertyData(this.d8s, this.d8Explode),
+        Die.D10 to DiePropertyData(this.d10s, this.d10Explode),
+        Die.D12 to DiePropertyData(this.d12s, this.d12Explode),
+        Die.D20 to DiePropertyData(this.d20s, this.d20Explode),
     )
 
     return DieSetData(this.id, this.name, map, this.mod)
@@ -156,18 +152,12 @@ internal fun DieSetEntity.toData(): DieSetData {
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 internal fun DieSetData.toEntity(): DieSetEntity {
     return DieSetEntity(
-        this.id, this.name, this.dice[Die.D4] ?: 0,
-        false,
-        this.dice[Die.D6] ?: 0,
-        false,
-        this.dice[Die.D8] ?: 0,
-        false,
-        this.dice[Die.D10] ?: 0,
-        false,
-        this.dice[Die.D12] ?: 0,
-        false,
-        this.dice[Die.D20] ?: 0,
-        false,
+        this.id, this.name, this.dice[Die.D4]?.times ?: 0, this.dice[Die.D4]?.exploding == true,
+        this.dice[Die.D6]?.times ?: 0, this.dice[Die.D6]?.exploding == true,
+        this.dice[Die.D8]?.times ?: 0, this.dice[Die.D8]?.exploding == true,
+        this.dice[Die.D10]?.times ?: 0, this.dice[Die.D10]?.exploding == true,
+        this.dice[Die.D12]?.times ?: 0, this.dice[Die.D12]?.exploding == true,
+        this.dice[Die.D20]?.times ?: 0, this.dice[Die.D20]?.exploding == true,
         this.modifier
     )
 }

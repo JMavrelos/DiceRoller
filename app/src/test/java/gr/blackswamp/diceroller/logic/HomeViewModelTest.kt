@@ -51,7 +51,7 @@ class HomeViewModelTest : KoinUnitTest() {
             val expected = listOf(Result(D4, 24))
 
             //run
-            vm.process(HomeEvent.Roll(D4))
+            vm.process(HomeEvent.DieSelect(D4))
 
             //check
             verify(repo).generateValue(D4)
@@ -70,7 +70,7 @@ class HomeViewModelTest : KoinUnitTest() {
             val expected = listOf(Result(D4, 24))
 
             //run
-            vm.process(HomeEvent.Roll(D4))
+            vm.process(HomeEvent.DieSelect(D4))
 
             //check
             verify(repo).generateValue(D4)
@@ -89,7 +89,7 @@ class HomeViewModelTest : KoinUnitTest() {
             val expected = listOf(Result(D8, 24))
 
             //run
-            vm.process(HomeEvent.Roll(D8))
+            vm.process(HomeEvent.DieSelect(D8))
 
             //check
             verify(repo).generateValue(D8)
@@ -108,7 +108,7 @@ class HomeViewModelTest : KoinUnitTest() {
             val expected = listOf(Result(D10, 24))
 
             //run
-            vm.process(HomeEvent.Roll(D10))
+            vm.process(HomeEvent.DieSelect(D10))
 
             //check
             verify(repo).generateValue(D10)
@@ -127,7 +127,7 @@ class HomeViewModelTest : KoinUnitTest() {
             val expected = listOf(Result(D12, 24))
 
             //run
-            vm.process(HomeEvent.Roll(D12))
+            vm.process(HomeEvent.DieSelect(D12))
 
             //check
             verify(repo).generateValue(D12)
@@ -146,7 +146,7 @@ class HomeViewModelTest : KoinUnitTest() {
             val expected = listOf(Result(D20, 24))
 
             //run
-            vm.process(HomeEvent.Roll(D20))
+            vm.process(HomeEvent.DieSelect(D20))
 
             //check
             verify(repo).generateValue(D20)
@@ -165,7 +165,7 @@ class HomeViewModelTest : KoinUnitTest() {
             val expected = listOf(Result(D100, 124), Text("%"))
 
             //run
-            vm.process(HomeEvent.Roll(D100))
+            vm.process(HomeEvent.DieSelect(D100))
 
             //check
             verify(repo).generateValue(D100)
@@ -185,7 +185,7 @@ class HomeViewModelTest : KoinUnitTest() {
             val set = (vm.state.getOrAwait() as HomeState.Creating).set
 
             //run
-            vm.process(HomeEvent.Roll(Die.values().random()))
+            vm.process(HomeEvent.DieSelect(Die.values().random()))
 
             //check
             val newState = vm.state.getOrAwait()

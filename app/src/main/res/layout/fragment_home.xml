@@ -191,11 +191,6 @@
             app:layout_constraintStart_toEndOf="@id/roll_barrier"
             app:layout_constraintTop_toTopOf="@id/d100" />
 
-        <gr.blackswamp.diceroller.core.widget.Group2
-            android:id="@+id/die_group"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:constraint_referenced_ids="d4,d6,d8,d10,d12,d20,d100" />
 
         <androidx.constraintlayout.widget.Group
             android:id="@+id/number_group"

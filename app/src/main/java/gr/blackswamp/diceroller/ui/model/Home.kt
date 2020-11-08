@@ -16,7 +16,7 @@ sealed class HomeEffect {
 }
 
 sealed class HomeEvent {
-    class Roll(val die: Die) : HomeEvent()
+    class DieSelect(val die: Die) : HomeEvent()
     class RollSet(val id: UUID) : HomeEvent()
     class Clear(val die: Die) : HomeEvent()
     class EditSet(val id: UUID) : HomeEvent()
@@ -37,8 +37,13 @@ sealed class Roll {
 interface DieSet {
     val id: UUID
     val name: String
-    val dice: Map<Die, Int>
+    val dice: Map<Die, DieProperty>
     val modifier: Int
+}
+
+interface DieProperty {
+    val times: Int
+    val exploding: Boolean
 }
 
 interface DieSetHeader {
@@ -46,12 +51,12 @@ interface DieSetHeader {
     val name: String
 }
 
-enum class Die {
-    D4,
-    D6,
-    D8,
-    D10,
-    D12,
-    D20,
-    D100
+enum class Die(val max: Int) {
+    D4(4),
+    D6(6),
+    D8(8),
+    D10(10),
+    D12(12),
+    D20(20),
+    D100(100)
 }

@@ -49,5 +49,19 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin"
             android:text="@string/help_edit_set_details" />
+
+        <TextView
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/help_exploding_dice" />
+
+        <TextView
+            style="@style/TextAppearance.MaterialComponents.Body1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin"
+            android:text="@string/help_exploding_dice_details" />
+
     </LinearLayout>
 </ScrollView>
