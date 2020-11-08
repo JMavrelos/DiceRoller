@@ -1,48 +1,37 @@
 package gr.blackswamp.diceroller.data.repos
 
+import androidx.annotation.StringRes
 
-@Suppress("unused")
-class Reply<out T>(private val value: Any?) {
-    val isSuccess: Boolean get() = value !is Failure
-
-    val isFailure: Boolean get() = value is Failure
-    fun getOrNull(): T? =
-        when {
-            isFailure -> null
-            else -> value as T
-        }
-
-
-    fun exceptionOrNull(): Throwable? =
-        when (value) {
-            is Failure -> value.exception
-            else -> null
-        }
-
-    override fun toString(): String =
-        when (value) {
-            is Failure -> value.toString()
-            else -> "Success($value)"
-        }
-
-    // companion with constructors
-
-    /**
-     * Companion object for [Reply] class that contains its constructor functions
-     * [success] and [failure].
-     */
+sealed class Reply<out T : Any> {
     companion object {
-
-        fun <T> success(value: T): Reply<T> =
-            Reply(value)
-
-        fun <T> failure(exception: Throwable): Reply<T> =
-            Reply(Failure(exception))
+        fun success(): Reply<Unit> =
+            Success(Unit)
     }
 
-    internal class Failure(val exception: Throwable) {
-        override fun equals(other: Any?): Boolean = other is Failure && exception == other.exception
-        override fun hashCode(): Int = exception.hashCode()
-        override fun toString(): String = "Failure($exception)"
+    data class Success<T : Any>(val data: T) : Reply<T>()
+    data class Failure(@StringRes val messageId: Int, val exception: Throwable) : Reply<Nothing>()
+
+    val hasError get() = this is Failure
+
+    fun onSuccess(block: (T) -> Unit): Reply<T> {
+        if (this is Success<T>) {
+            block.invoke(this.data)
+        }
+        return this
     }
+
+    fun onFailure(block: (Failure) -> Unit): Reply<T> {
+        if (this is Failure) {
+            block.invoke(this)
+        }
+        return this
+    }
+
+    override fun toString(): String {
+        return when (this) {
+            is Success<*> -> "Success[data=$data]"
+            is Failure -> "Error[throwable=$exception]"
+        }
+    }
+
 }

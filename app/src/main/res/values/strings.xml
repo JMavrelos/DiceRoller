@@ -19,8 +19,17 @@
     <string name="die_type">Die Type</string>
     <string name="modifier">Mod</string>
     <string name="enter_set_name">Enter Set Name</string>
-    <string name="error_create_set">Error while building set , please try again</string>
     <string name="default_set_name">Set %1$d</string>
+    <!--<editor-fold desc="error messages ">-->
+    <string name="error_loading_set">Error while loading set information</string>
+    <string name="error_set_not_found">Set could not be located</string>
+    <string name="error_deleting_set">Error while deleting set</string>
+    <string name="error_saving_set">Error while saving set</string>
+    <string name="error_set_with_no_rolls">A set must have at least one die roll</string>
+    <string name="error_set_name_exists">Set name already exists</string>
+    <string name="error_create_set">Error while building set , please try again</string>
+    <!--</editor-fold>-->
+    <!--<editor-fold desc="help dialog strings">-->
     <string name="help_rolling_normally">Rolling normally</string>
     <string name="help_rolling_normally_details">Press on one of the dice on the right side to roll that die\nThe result will appear on the left side</string>
     <string name="help_create_set">Creating a roll set</string>
@@ -39,7 +48,5 @@
   You can then alter the set and save the set using the save button on the lower left side\n
   Or delete the set by using the delete button next to he save button
     </string>
-    <string name="error_loading_set">Error while loading set information</string>
-
-
+    <!--</editor-fold>-->
 </resources>

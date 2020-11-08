@@ -1,4 +1,4 @@
-package gr.blackswamp.diceroller.util
+package gr.blackswamp.diceroller.core.ui
 
 import android.app.AlertDialog
 import android.app.Dialog

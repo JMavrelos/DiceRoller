@@ -15,9 +15,12 @@ interface DieSetDao {
     @Query("delete from die_sets where id = :id")
     suspend fun delete(id: UUID): Int
 
-    @Query("SELECT id , name from die_sets")
+    @Query("select id , name from die_sets")
     fun getSetHeaders(): LiveData<List<DieSetHeaderEntity>>
 
-    @Query("SELECT * from die_sets where id = :id")
+    @Query("select * from die_sets where id = :id")
     suspend fun getSet(id: UUID): DieSetEntity?
+
+    @Query("select count(*) from die_sets where lower(name) = lower(:name)")
+    suspend fun countByName(name: String): Int
 }

@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "ed543672daa21a8d3e85add85a00b895",
+    "identityHash": "bd650dcb70739f85c67a1ce72e5a896b",
     "entities": [
       {
         "tableName": "die_sets",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `d4s` INTEGER NOT NULL, `d6s` INTEGER NOT NULL, `d8s` INTEGER NOT NULL, `d10s` INTEGER NOT NULL, `d12s` INTEGER NOT NULL, `d20s` INTEGER NOT NULL, `mod` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `d4s` INTEGER NOT NULL, `d4Explode` INTEGER NOT NULL, `d6s` INTEGER NOT NULL, `d6Explode` INTEGER NOT NULL, `d8s` INTEGER NOT NULL, `d8Explode` INTEGER NOT NULL, `d10s` INTEGER NOT NULL, `d10Explode` INTEGER NOT NULL, `d12s` INTEGER NOT NULL, `d12Explode` INTEGER NOT NULL, `d20s` INTEGER NOT NULL, `d20Explode` INTEGER NOT NULL, `mod` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -27,8 +27,20 @@
             "notNull": true
           },
           {
+            "fieldPath": "d4Explode",
+            "columnName": "d4Explode",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "d6s",
             "columnName": "d6s",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "d6Explode",
+            "columnName": "d6Explode",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -39,8 +51,20 @@
             "notNull": true
           },
           {
+            "fieldPath": "d8Explode",
+            "columnName": "d8Explode",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "d10s",
             "columnName": "d10s",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "d10Explode",
+            "columnName": "d10Explode",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -51,8 +75,20 @@
             "notNull": true
           },
           {
+            "fieldPath": "d12Explode",
+            "columnName": "d12Explode",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "d20s",
             "columnName": "d20s",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "d20Explode",
+            "columnName": "d20Explode",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -76,7 +112,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ed543672daa21a8d3e85add85a00b895')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bd650dcb70739f85c67a1ce72e5a896b')"
     ]
   }
 }

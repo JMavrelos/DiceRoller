@@ -1,4 +1,4 @@
-package gr.blackswamp.diceroller.util
+package gr.blackswamp.diceroller.core.widget
 
 import android.content.Context
 import android.util.AttributeSet

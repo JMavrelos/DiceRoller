@@ -1,198 +1,183 @@
 package gr.blackswamp.diceroller.logic
 
 import android.app.Application
-import androidx.annotation.CallSuper
 import androidx.annotation.VisibleForTesting
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
-import gr.blackswamp.diceroller.R
+import androidx.lifecycle.*
 import gr.blackswamp.diceroller.data.repos.HomeRepository
-import gr.blackswamp.diceroller.ui.commands.HomeCommand
-import gr.blackswamp.diceroller.ui.model.Die
-import gr.blackswamp.diceroller.ui.model.DieSetHeader
-import gr.blackswamp.diceroller.ui.model.HomeFragmentState
-import gr.blackswamp.diceroller.ui.model.Roll
-import gr.blackswamp.diceroller.util.LiveEvent
-import kotlinx.coroutines.*
+import gr.blackswamp.diceroller.data.repos.Reply
+import gr.blackswamp.diceroller.ui.model.*
+import kotlinx.coroutines.launch
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import java.util.*
-import kotlin.coroutines.CoroutineContext
 
-class HomeViewModel(app: Application, private val parent: FragmentParent) : AndroidViewModel(app), KoinComponent, CoroutineScope {
-    private val supervisor = SupervisorJob()
-    override val coroutineContext: CoroutineContext = supervisor + Dispatchers.Main.immediate
+class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
     private val repo by inject<HomeRepository>()
+    private val _state = MutableLiveData<HomeState>()
+    private val _effect = MutableLiveData<HomeEffect>()
 
-    //<editor-fold desc="variables that represent the current state">
+    //<editor-fold desc="live data the fragment can observe">
     val sets: LiveData<List<DieSetHeader>> = repo.getSets().map { it }
-
-    private val rolls = mutableListOf<Roll>()
-    private var editing = false
-    private var set: DieSetData? = null
-
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    @Suppress("PropertyName")
-    internal val _state = MutableLiveData(HomeFragmentState())
-    private var _command = LiveEvent<HomeCommand>()
+    val state: LiveData<HomeState> = _state
+    val effect: LiveData<HomeEffect> = _effect
     //</editor-fold>
 
-    //<editor-fold desc="Live Data">
-    val state: LiveData<HomeFragmentState> = _state
-    val command: LiveData<HomeCommand> = _command
-    //</editor-fold>
+    init {
+        _state.postValue(HomeState.Viewing())
+    }
 
-    fun roll(die: Die) {
-        val set = _state.value?.set as? DieSetData
-        if (set == null) {
-            launch {
+
+    /**
+     * this processes all events from the home fragment
+     */
+    fun process(event: HomeEvent) {
+        when (event) {
+            is HomeEvent.Roll -> roll(event.die)
+            is HomeEvent.RollSet -> rollSet(event.id)
+            is HomeEvent.EditSet -> editSet(event.id)
+            is HomeEvent.Action1 -> action1()
+            is HomeEvent.NameSelected -> nameSelected(event.name)
+            is HomeEvent.Action2 -> action2()
+            is HomeEvent.Action3 -> action3()
+            is HomeEvent.Increase -> change(event.die, true)
+            is HomeEvent.Decrease -> change(event.die, false)
+            is HomeEvent.Clear -> clear(event.die)
+            is HomeEvent.Help -> _effect.postValue(HomeEffect.ShowHelp)
+
+        }
+    }
+
+
+    //<editor-fold desc="event listeners">
+    private fun roll(die: Die) {
+        if (state.value is HomeState.Viewing) {
+            viewModelScope.launch {
                 val calculated = listOf(RollData(die, repo.generateValue(die))).toRolls()
-                updateRolls(calculated)
-                updateState()
+                _state.postValue(HomeState.Viewing(calculated))
             }
         }
     }
 
-    fun rollSet(id: UUID) {
-        if (set != null)
-            return
-        launch {
-            val response = repo.getSet(id)
-            if (response.isFailure) {
-                parent.showError(R.string.error_loading_set)
-            } else {
-                val rollSet = response.getOrNull() ?: return@launch
-                val rolls = repo.generateRolls(rollSet)
-                val calculated = rolls.toRolls(rollSet.modifier)
-                updateRolls(calculated)
-                updateState()
+    private fun rollSet(id: UUID) {
+        viewModelScope.launch {
+            when (val set = repo.getSet(id)) {
+                is Reply.Success -> {
+                    val rolls = repo.generateRolls(set.data)
+                    val calculated = rolls.toRolls(set.data.modifier)
+                    _state.postValue(HomeState.Viewing(calculated))
+                }
+                is Reply.Failure -> _effect.postValue(HomeEffect.ShowError(set.messageId))
             }
         }
     }
 
-    fun editSet(id: UUID) {
-        launch {
-            val response = repo.getSet(id)
-            if (response.isFailure) {
-                //todo:handle error
-            } else {
-                set = response.getOrNull()
-                updateRolls(listOf())
-                editing = true
-                updateState()
+    private fun editSet(id: UUID) {
+        viewModelScope.launch {
+            repo.getSet(id).onSuccess {
+                _state.postValue(HomeState.Editing(it))
+            }.onFailure {
+                _effect.postValue(HomeEffect.ShowError(it.messageId))
             }
         }
     }
 
-    fun action1() {
-        val current = this.set
-        if (current == null) {
-            launch {
-                val nextId = repo.getNextAvailableId()
-                _command.postValue(HomeCommand.ShowNameDialog(nextId))
+    private fun action1() {
+        val set = when (val current = state.value) {
+            is HomeState.Creating -> current.set as DieSetData
+            is HomeState.Editing -> current.set as DieSetData
+            is HomeState.Viewing -> {
+                viewModelScope.launch {
+                    val nextId = repo.getNextAvailableId()
+                    _effect.postValue(HomeEffect.ShowNameDialog(nextId = nextId))
+                }
+                return
             }
-        } else {
-            saveSet(current)
+            else -> return
+        }
+
+        viewModelScope.launch {
+            repo.saveSet(set).onFailure {
+                _effect.postValue(HomeEffect.ShowError(it.messageId))
+            }.onSuccess {
+                _state.postValue(HomeState.Creating(set))
+            }
         }
     }
 
-    fun nameSelected(name: String) {
-        val current = this.set
-        if (current != null) {
-            parent.showError(R.string.error_create_set)
-        } else {
-            newSet(name)
+    private fun nameSelected(name: String) {
+        viewModelScope.launch {
+            repo.buildNewSet(name).onFailure {
+                _effect.postValue(HomeEffect.ShowError(it.messageId))
+            }.onSuccess {
+                _state.postValue(HomeState.Creating(it))
+            }
         }
     }
 
-    fun action2() {
-        val current = this.set
-        if (current != null) {
-            launch {
-                if (repo.exists(current)) {
-                    deleteSet(current)
-                } else {
-                    cancelEdit()
+    private fun action2() {
+        val current = state.value
+        if (current is HomeState.Creating) {
+            _state.postValue(HomeState.Viewing())
+        } else if (current is HomeState.Editing) {
+            viewModelScope.launch {
+                repo.delete(current.set as DieSetData).onFailure {
+                    _effect.postValue(HomeEffect.ShowError(it.messageId))
+                }.onSuccess {
+                    _state.postValue(HomeState.Viewing())
                 }
             }
         }
     }
 
-    fun action3() {
-        val current = this.set
-        launch {
-            if (current != null && repo.exists(current)) {
-                cancelEdit()
-            }
+    private fun action3() {
+        val current = state.value
+        if (current is HomeState.Editing) {
+            _state.postValue(HomeState.Viewing())
         }
     }
 
-    fun change(die: Die, increase: Boolean) {
-        val current = set ?: return
-        this.set = current.copy(
-            dice = current.dice.toMutableMap().apply {
-                this[die] = (this[die] ?: 0) + (if (increase) 1 else -1)
+    private fun change(die: Die, increase: Boolean) {
+        val current = state.value
+        val set = when (current) {
+            is HomeState.Creating -> current.set as DieSetData
+            is HomeState.Editing -> current.set as DieSetData
+            else -> return
+        }
+        val new = set.copy(
+            dice = set.dice.toMutableMap().apply {
+                this[die] = ((this[die] ?: 0) + (if (increase) 1 else -1)).coerceAtLeast(0)
             }
         )
-        updateState()
+        if (current is HomeState.Creating) {
+            _state.postValue(HomeState.Creating(new))
+        } else if (current is HomeState.Editing) {
+            _state.postValue(HomeState.Editing(new))
+        }
 
     }
 
-    fun clear(die: Die) {
-        val set = _state.value?.set as? DieSetData ?: return
-        this.set = set.copy(
+    private fun clear(die: Die) {
+        val current = state.value
+        val set = when (current) {
+            is HomeState.Creating -> current.set as DieSetData
+            is HomeState.Editing -> current.set as DieSetData
+            else -> return
+        }
+        val new = set.copy(
             dice = set.dice.toMutableMap().apply {
                 this[die] = 0
             }
         )
-        updateState()
+        if (current is HomeState.Creating) {
+            _state.postValue(HomeState.Creating(new))
+        } else if (current is HomeState.Editing) {
+            _state.postValue(HomeState.Editing(new))
+        }
     }
 
-    fun pleaseHelpMe() {
-        _command.postValue(HomeCommand.ShowHelp)
-        updateState()
-    }
+    //</editor-fold>
 
     //<editor-fold desc="private functions">
-    private fun saveSet(set: DieSetData) {
-        launch {
-            val response = repo.saveSet(set)
-            if (response.isFailure) {
-                //todo:handle error
-            } else {
-                this@HomeViewModel.set = null
-                editing = false
-                updateState()
-            }
-        }
-    }
-
-    private fun newSet(name: String) {
-        set = repo.buildNewSet(name)
-        updateRolls(listOf())
-        editing = false
-        updateState()
-    }
-
-    private suspend fun deleteSet(set: DieSetData) {
-        val response = repo.delete(set)
-        if (response.isFailure) {
-            //todo:handle error
-        } else {
-            this@HomeViewModel.set = null
-            this@HomeViewModel.editing = false
-            updateState()
-        }
-    }
-
-    private fun cancelEdit() {
-        this.set = null
-        this.editing = false
-        updateState()
-    }
-
     private fun List<RollData>.toRolls(modifier: Int = 0): List<Roll> = transform(this, modifier)
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -220,26 +205,6 @@ class HomeViewModel(app: Application, private val parent: FragmentParent) : Andr
 
         return calculated
     }
-
-    private fun updateRolls(rolls: List<Roll>) {
-        synchronized(this.rolls) {
-            this.rolls.clear()
-            this.rolls.addAll(rolls)
-        }
-    }
-
-
-    private fun updateState() {
-        _state.postValue(
-            HomeFragmentState(rolls = this.rolls, set = this.set, editing = this.editing)
-        )
-    }
     //</editor-fold>
-
-    @CallSuper
-    override fun onCleared() {
-        super.onCleared()
-        supervisor.cancel("View model cleared")
-    }
 
 }

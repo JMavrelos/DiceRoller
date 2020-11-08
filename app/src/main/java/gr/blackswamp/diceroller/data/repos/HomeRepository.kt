@@ -4,6 +4,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import androidx.sqlite.db.SimpleSQLiteQuery
+import gr.blackswamp.diceroller.R
 import gr.blackswamp.diceroller.data.db.AppDatabase
 import gr.blackswamp.diceroller.data.db.DieSetEntity
 import gr.blackswamp.diceroller.data.db.DieSetHeaderEntity
@@ -45,16 +46,21 @@ class HomeRepository : KoinComponent {
         }
     }
 
-    fun buildNewSet(name: String): DieSetData {
-        return DieSetData(
-            newSetId, name, mapOf(
-                Die.D4 to 0,
-                Die.D6 to 0,
-                Die.D8 to 0,
-                Die.D10 to 0,
-                Die.D12 to 0,
-                Die.D20 to 0,
-            ), 0
+    suspend fun buildNewSet(name: String): Reply<DieSetData> {
+        if (db.dieSetDao.countByName(name) > 0)
+            return Reply.Failure(R.string.error_set_name_exists, IllegalArgumentException("Set $name already exists"))
+
+        return Reply.Success(
+            DieSetData(
+                newSetId, name, mapOf(
+                    Die.D4 to 0,
+                    Die.D6 to 0,
+                    Die.D8 to 0,
+                    Die.D10 to 0,
+                    Die.D12 to 0,
+                    Die.D20 to 0,
+                ), 0
+            )
         )
     }
 
@@ -67,14 +73,16 @@ class HomeRepository : KoinComponent {
     }
 
     suspend fun getSet(id: UUID): Reply<DieSetData> =
-        tryWithReply { db.dieSetDao.getSet(id)?.toData() ?: throw Throwable("Set with id $id not found") }
+        tryWithReply(R.string.error_set_not_found) { db.dieSetDao.getSet(id)?.toData() ?: throw Throwable("Set with id $id not found") }
 
 
     suspend fun delete(set: DieSetData): Reply<Unit> =
-        tryWithReply { db.dieSetDao.delete(set.id) }
+        tryWithReply(R.string.error_deleting_set) { db.dieSetDao.delete(set.id) }
 
-    suspend fun saveSet(set: DieSetData): Reply<DieSetData> =
-        tryWithReply {
+    suspend fun saveSet(set: DieSetData): Reply<DieSetData> {
+        if (set.dice.count { it.value > 0 } == 0)
+            return Reply.Failure(R.string.error_set_with_no_rolls, Throwable("There are no rolls in submitted data"))
+        return tryWithReply(R.string.error_saving_set) {
             if (set.id == newSetId) {
                 val newEntity = set.toEntity().copy(id = UUID.randomUUID())
                 db.dieSetDao.insert(newEntity)
@@ -85,13 +93,14 @@ class HomeRepository : KoinComponent {
                 newEntity
             }.toData()
         }
+    }
 
-    private suspend fun <T> tryWithReply(action: suspend () -> T): Reply<T> {
+    private suspend fun <T : Any> tryWithReply(errorMessage: Int, action: suspend () -> T): Reply<T> {
         return try {
             val reply = action.invoke()
-            Reply.success(reply)
+            Reply.Success(reply)
         } catch (t: Throwable) {
-            Reply.failure(t)
+            Reply.Failure(errorMessage, t)
         }
     }
 
@@ -148,11 +157,17 @@ internal fun DieSetEntity.toData(): DieSetData {
 internal fun DieSetData.toEntity(): DieSetEntity {
     return DieSetEntity(
         this.id, this.name, this.dice[Die.D4] ?: 0,
+        false,
         this.dice[Die.D6] ?: 0,
+        false,
         this.dice[Die.D8] ?: 0,
+        false,
         this.dice[Die.D10] ?: 0,
+        false,
         this.dice[Die.D12] ?: 0,
+        false,
         this.dice[Die.D20] ?: 0,
+        false,
         this.modifier
     )
 }

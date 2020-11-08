@@ -6,11 +6,11 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import gr.blackswamp.diceroller.R
+import gr.blackswamp.diceroller.core.widget.value
 import gr.blackswamp.diceroller.databinding.ListItemModBinding
 import gr.blackswamp.diceroller.databinding.ListItemResultBinding
 import gr.blackswamp.diceroller.ui.model.Die
 import gr.blackswamp.diceroller.ui.model.Roll
-import gr.blackswamp.diceroller.util.value
 import timber.log.Timber
 
 class RollAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -27,7 +27,7 @@ class RollAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         DiffUtil.calculateDiff(diff).dispatchUpdatesTo(this)
     }
 
-    fun getRoll(position: Int): Roll? {
+    private fun getRoll(position: Int): Roll? {
         return if (position < rolls.size && position >= 0)
             rolls[position]
         else
@@ -73,7 +73,7 @@ class RollAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         private val die = binding.die
 
         fun update(roll: Roll.Result) {
-            val text = "${roll.value}${if (roll.die == Die.D100) "%" else ""}"
+            val text = "${roll.value}"
             value.value = text
             val set = ConstraintSet()
             set.clone(root)

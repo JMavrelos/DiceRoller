@@ -1,4 +1,4 @@
-package gr.blackswamp.diceroller.util
+package gr.blackswamp.diceroller.core.livedata
 
 import androidx.annotation.MainThread
 import androidx.lifecycle.LifecycleOwner

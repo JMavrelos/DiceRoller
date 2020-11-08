@@ -4,6 +4,7 @@ import android.database.Cursor
 import androidx.lifecycle.MutableLiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.nhaarman.mockitokotlin2.*
+import gr.blackswamp.diceroller.R
 import gr.blackswamp.diceroller.TestData
 import gr.blackswamp.diceroller.data.db.AppDatabase
 import gr.blackswamp.diceroller.data.db.DieSetDao
@@ -74,13 +75,32 @@ class HomeRepositoryTest : KoinUnitTest() {
     }
 
     @Test
-    fun `when new set is called an empty set is created`() {
-        val name = "hello world"
-        val expected = DieSetData(EmptyUUID, name, mapOf(Die.D4 to 0, Die.D6 to 0, Die.D8 to 0, Die.D10 to 0, Die.D12 to 0, Die.D20 to 0))
+    fun `when new set is called and the name does not exist an empty set is created`() {
+        runBlocking {
+            val name = "hello world"
+            val expected = DieSetData(EmptyUUID, name, mapOf(Die.D4 to 0, Die.D6 to 0, Die.D8 to 0, Die.D10 to 0, Die.D12 to 0, Die.D20 to 0))
+            whenever(dao.countByName(name)).thenReturn(0)
 
-        val response = repo.buildNewSet(name)
+            val response = repo.buildNewSet(name)
 
-        assertEquals(expected, response)
+            assertFalse(response.hasError)
+            val data = (response as Reply.Success).data
+            assertEquals(expected, data)
+        }
+    }
+
+    @Test
+    fun `when new set is called but it exists we get an error`() {
+        runBlocking {
+            val name = "hello world"
+            whenever(dao.countByName(name)).thenReturn(3)
+
+            val response = repo.buildNewSet(name)
+
+            assertTrue(response.hasError)
+            val data = (response as Reply.Failure).messageId
+            assertEquals(R.string.error_set_name_exists, data)
+        }
     }
 
     @Test
@@ -125,7 +145,7 @@ class HomeRepositoryTest : KoinUnitTest() {
     fun `toData parses correctly`() {
         val id = UUID.randomUUID()
         val name = "hello world"
-        val entity = DieSetEntity(id, name, 1111, 221312, 12312, 312, 31, 2314, 124)
+        val entity = DieSetEntity(id, name, 1111, false, 221312, false, 12312, false, 312, false, 31, false, 2314, false, 124)
         val expected = DieSetData(id, name, mapOf(Die.D4 to 1111, Die.D6 to 221312, Die.D8 to 12312, Die.D10 to 312, Die.D12 to 31, Die.D20 to 2314), 124)
 
         val response = entity.toData()
@@ -149,7 +169,7 @@ class HomeRepositoryTest : KoinUnitTest() {
     fun `toEntity parses correctly`() {
         val id = UUID.randomUUID()
         val name = "hello world"
-        val expected = DieSetEntity(id, name, 1111, 221312, 12312, 312, 31, 2314, 124)
+        val expected = DieSetEntity(id, name, 1111, false, 221312, false, 12312, false, 312, false, 31, false, 2314, false, 124)
         val data = DieSetData(id, name, mapOf(Die.D4 to 1111, Die.D6 to 221312, Die.D8 to 12312, Die.D10 to 312, Die.D12 to 31, Die.D20 to 2314), 124)
 
         val response = data.toEntity()
@@ -157,7 +177,6 @@ class HomeRepositoryTest : KoinUnitTest() {
         assertEquals(expected, response)
 
     }
-
 
     @Test
     fun `get set retrieves the set from dao`() {
@@ -168,7 +187,9 @@ class HomeRepositoryTest : KoinUnitTest() {
 
             val response = repo.getSet(entity.id)
 
-            assertEquals(expected, response.getOrNull())
+            val data = (response as Reply.Success).data
+
+            assertEquals(expected, data)
             verify(dao).getSet(entity.id)
             verifyNoMoreInteractions(dao)
         }
@@ -182,8 +203,10 @@ class HomeRepositoryTest : KoinUnitTest() {
 
             val response = repo.getSet(id)
 
-            assertTrue(response.isFailure)
-            assertEquals("Set with id $id not found", response.exceptionOrNull()!!.message)
+            assertTrue(response.hasError)
+            val error = response as Reply.Failure
+            assertEquals("Set with id $id not found", error.exception.message)
+            assertEquals(R.string.error_set_not_found, error.messageId)
             verify(dao).getSet(id)
             verifyNoMoreInteractions(dao)
         }
@@ -193,13 +216,15 @@ class HomeRepositoryTest : KoinUnitTest() {
     fun `get cannot retrieve the set from dao`() {
         runBlocking {
             val id = UUID.randomUUID()
-            val error = "this is the problem with your query"
-            whenever(dao.getSet(id)).thenThrow(RuntimeException(error))
+            val errorMessage = "this is the problem with your query"
+            whenever(dao.getSet(id)).thenThrow(RuntimeException(errorMessage))
 
             val response = repo.getSet(id)
 
-            assertTrue(response.isFailure)
-            assertEquals(error, response.exceptionOrNull()!!.message)
+            assertTrue(response.hasError)
+            val error = response as Reply.Failure
+            assertEquals(errorMessage, error.exception.message)
+            assertEquals(R.string.error_set_not_found, error.messageId)
             verify(dao).getSet(id)
             verifyNoMoreInteractions(dao)
         }
@@ -212,7 +237,7 @@ class HomeRepositoryTest : KoinUnitTest() {
 
             val response = repo.delete(entity.toData())
 
-            assertTrue(response.isSuccess)
+            assertFalse(response.hasError)
             verify(dao).delete(entity.id)
             verifyNoMoreInteractions(dao)
         }
@@ -222,15 +247,31 @@ class HomeRepositoryTest : KoinUnitTest() {
     fun `delete fails with error`() {
         runBlocking {
             val entity = TestData.SETS.random()
-            val error = "this is the problem with your query"
-            whenever(dao.delete(entity.id)).thenThrow(RuntimeException(error))
+            val errorMessage = "this is the problem with your query"
+            whenever(dao.delete(entity.id)).thenThrow(RuntimeException(errorMessage))
 
             val response = repo.delete(entity.toData())
 
-            assertFalse(response.isSuccess)
-            assertEquals(error, response.exceptionOrNull()?.message)
+            assertTrue(response.hasError)
+            val error = response as Reply.Failure
+            assertEquals(errorMessage, error.exception.message)
+            assertEquals(R.string.error_deleting_set, error.messageId)
             verify(dao).delete(entity.id)
             verifyNoMoreInteractions(dao)
+        }
+    }
+
+    @Test
+    fun `save a set with no rolls fails`() {
+        runBlocking {
+            val set = DieSetData(UUID.randomUUID(), "hello world", mapOf(), 32)
+
+            val reply = repo.saveSet(set)
+
+            assertTrue(reply.hasError)
+            val error = (reply as Reply.Failure)
+            verifyZeroInteractions(dao)
+            assertEquals(R.string.error_set_with_no_rolls, error.messageId)
         }
     }
 
@@ -241,10 +282,11 @@ class HomeRepositoryTest : KoinUnitTest() {
 
             val reply = repo.saveSet(set)
 
-            assertTrue(reply.isSuccess)
+            assertFalse(reply.hasError)
             val captor = argumentCaptor<DieSetEntity>()
             verify(dao).insert(captor.capture())
             verifyNoMoreInteractions(dao)
+            //todo:update for exploding dice
             assertNotEquals(EmptyUUID, captor.firstValue.id)
             assertEquals(set.name, captor.firstValue.name)
             assertEquals(set.dice[Die.D4], captor.firstValue.d4s)
@@ -255,11 +297,12 @@ class HomeRepositoryTest : KoinUnitTest() {
             assertEquals(set.dice[Die.D20], captor.firstValue.d20s)
             assertEquals(set.modifier, captor.firstValue.mod)
 
-            assertEquals(reply.getOrNull(), captor.firstValue.toData())
+            val data = (reply as Reply.Success).data
+            assertEquals(data, captor.firstValue.toData())
 
             assertNotEquals(EmptyUUID, captor.firstValue.id)
-            assertEquals(captor.firstValue.name, reply.getOrNull()!!.name)
-            assertEquals(set.dice, reply.getOrNull()!!.dice)
+            assertEquals(captor.firstValue.name, data.name)
+            assertEquals(set.dice, data.dice)
         }
     }
 
@@ -270,12 +313,13 @@ class HomeRepositoryTest : KoinUnitTest() {
 
             val reply = repo.saveSet(set)
 
-            assertTrue(reply.isSuccess)
+            assertFalse(reply.hasError)
+            val data = (reply as Reply.Success).data
             val captor = argumentCaptor<DieSetEntity>()
             verify(dao).update(captor.capture())
             verifyNoMoreInteractions(dao)
             assertEquals(set.toEntity(), captor.firstValue)
-            assertEquals(set, reply.getOrNull())
+            assertEquals(set, data)
         }
     }
 
@@ -287,10 +331,12 @@ class HomeRepositoryTest : KoinUnitTest() {
 
             val reply = repo.saveSet(set)
 
-            assertTrue(reply.isFailure)
+            assertTrue(reply.hasError)
+            val error = (reply as Reply.Failure)
             verify(dao).insert(any())
             verifyNoMoreInteractions(dao)
-            assertEquals("problem inserting", reply.exceptionOrNull()?.message)
+            assertEquals(R.string.error_saving_set, error.messageId)
+            assertEquals("problem inserting", error.exception.message)
         }
     }
 
@@ -303,10 +349,12 @@ class HomeRepositoryTest : KoinUnitTest() {
 
             val reply = repo.saveSet(set)
 
-            assertTrue(reply.isFailure)
+            assertTrue(reply.hasError)
+            val error = (reply as Reply.Failure)
             verify(dao).update(set.toEntity())
             verifyNoMoreInteractions(dao)
-            assertEquals("problem updating", reply.exceptionOrNull()?.message)
+            assertEquals(R.string.error_saving_set, error.messageId)
+            assertEquals("problem updating", error.exception.message)
         }
     }
 

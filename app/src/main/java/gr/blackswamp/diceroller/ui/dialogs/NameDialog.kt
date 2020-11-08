@@ -7,9 +7,9 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.navArgs
 import gr.blackswamp.diceroller.R
+import gr.blackswamp.diceroller.core.ui.DialogFragment
+import gr.blackswamp.diceroller.core.widget.value
 import gr.blackswamp.diceroller.databinding.DialogNameBinding
-import gr.blackswamp.diceroller.util.DialogFragment
-import gr.blackswamp.diceroller.util.value
 
 class NameDialog : DialogFragment<DialogNameBinding>() {
     companion object {

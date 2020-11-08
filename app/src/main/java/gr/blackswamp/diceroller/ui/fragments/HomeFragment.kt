@@ -14,18 +14,15 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
 import gr.blackswamp.diceroller.R
+import gr.blackswamp.diceroller.core.widget.*
 import gr.blackswamp.diceroller.databinding.FragmentHomeBinding
 import gr.blackswamp.diceroller.logic.FragmentParent
 import gr.blackswamp.diceroller.logic.HomeViewModel
 import gr.blackswamp.diceroller.logic.MainViewModel
 import gr.blackswamp.diceroller.ui.adapters.RollAdapter
 import gr.blackswamp.diceroller.ui.adapters.SetAdapter
-import gr.blackswamp.diceroller.ui.commands.HomeCommand
 import gr.blackswamp.diceroller.ui.dialogs.NameDialog
-import gr.blackswamp.diceroller.ui.model.Die
-import gr.blackswamp.diceroller.ui.model.DieSet
-import gr.blackswamp.diceroller.ui.model.HomeFragmentState
-import gr.blackswamp.diceroller.util.*
+import gr.blackswamp.diceroller.ui.model.*
 import org.koin.android.viewmodel.ext.android.sharedViewModel
 import org.koin.android.viewmodel.ext.android.viewModel
 import org.koin.core.KoinComponent
@@ -59,7 +56,7 @@ class HomeFragment : Fragment(), KoinComponent {
     private val action1 by lazy { binding.action1 }
     private val action2 by lazy { binding.action2 }
     private val action3 by lazy { binding.action3 }
-    private val setAdapter by lazy { SetAdapter(vm::rollSet, vm::editSet) }
+    private val setAdapter by lazy { SetAdapter({ vm.process(HomeEvent.RollSet(it)) }, { vm.process(HomeEvent.EditSet(it)) }) }
     private val rollAdapter by lazy { RollAdapter() }
     private val inPortrait by lazy { resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT }
     //</editor-fold>
@@ -82,97 +79,102 @@ class HomeFragment : Fragment(), KoinComponent {
     }
 
     private fun setUpListeners() {
-        d4number.value.setOnClickListener { vm.clear(Die.D4) }
-        d6number.value.setOnClickListener { vm.clear(Die.D6) }
-        d8number.value.setOnClickListener { vm.clear(Die.D8) }
-        d10number.value.setOnClickListener { vm.clear(Die.D10) }
-        d12number.value.setOnClickListener { vm.clear(Die.D12) }
-        d20number.value.setOnClickListener { vm.clear(Die.D20) }
-        modNumber.value.setOnClickListener { vm.clear(Die.D100) }
+        d4number.value.setOnClickListener { vm.process(HomeEvent.Clear(Die.D4)) }
+        d6number.value.setOnClickListener { vm.process(HomeEvent.Clear(Die.D6)) }
+        d8number.value.setOnClickListener { vm.process(HomeEvent.Clear(Die.D8)) }
+        d10number.value.setOnClickListener { vm.process(HomeEvent.Clear(Die.D10)) }
+        d12number.value.setOnClickListener { vm.process(HomeEvent.Clear(Die.D12)) }
+        d20number.value.setOnClickListener { vm.process(HomeEvent.Clear(Die.D20)) }
+        modNumber.value.setOnClickListener { vm.process(HomeEvent.Clear(Die.D100)) }
 
-        d4number.add.setOnClickListener { vm.change(Die.D4, true) }
-        d6number.add.setOnClickListener { vm.change(Die.D6, true) }
-        d8number.add.setOnClickListener { vm.change(Die.D8, true) }
-        d10number.add.setOnClickListener { vm.change(Die.D10, true) }
-        d12number.add.setOnClickListener { vm.change(Die.D12, true) }
-        d20number.add.setOnClickListener { vm.change(Die.D20, true) }
-        modNumber.add.setOnClickListener { vm.change(Die.D100, true) }
+        d4number.add.setOnClickListener { vm.process(HomeEvent.Increase(Die.D4)) }
+        d6number.add.setOnClickListener { vm.process(HomeEvent.Increase(Die.D6)) }
+        d8number.add.setOnClickListener { vm.process(HomeEvent.Increase(Die.D8)) }
+        d10number.add.setOnClickListener { vm.process(HomeEvent.Increase(Die.D10)) }
+        d12number.add.setOnClickListener { vm.process(HomeEvent.Increase(Die.D12)) }
+        d20number.add.setOnClickListener { vm.process(HomeEvent.Increase(Die.D20)) }
+        modNumber.add.setOnClickListener { vm.process(HomeEvent.Increase(Die.D100)) }
 
-        d4number.remove.setOnClickListener { vm.change(Die.D4, false) }
-        d6number.remove.setOnClickListener { vm.change(Die.D6, false) }
-        d8number.remove.setOnClickListener { vm.change(Die.D8, false) }
-        d10number.remove.setOnClickListener { vm.change(Die.D10, false) }
-        d12number.remove.setOnClickListener { vm.change(Die.D12, false) }
-        d20number.remove.setOnClickListener { vm.change(Die.D20, false) }
-        modNumber.remove.setOnClickListener { vm.change(Die.D100, false) }
+        d4number.remove.setOnClickListener { vm.process(HomeEvent.Decrease(Die.D4)) }
+        d6number.remove.setOnClickListener { vm.process(HomeEvent.Decrease(Die.D6)) }
+        d8number.remove.setOnClickListener { vm.process(HomeEvent.Decrease(Die.D8)) }
+        d10number.remove.setOnClickListener { vm.process(HomeEvent.Decrease(Die.D10)) }
+        d12number.remove.setOnClickListener { vm.process(HomeEvent.Decrease(Die.D12)) }
+        d20number.remove.setOnClickListener { vm.process(HomeEvent.Decrease(Die.D20)) }
+        modNumber.remove.setOnClickListener { vm.process(HomeEvent.Decrease(Die.D100)) }
 
-        action1.setOnClickListener { vm.action1() }
-        action2.setOnClickListener { vm.action2() }
-        action3.setOnClickListener { vm.action3() }
+        action1.setOnClickListener { vm.process(HomeEvent.Action1) }
+        action2.setOnClickListener { vm.process(HomeEvent.Action2) }
+        action3.setOnClickListener { vm.process(HomeEvent.Action3) }
 
-        d4.setOnClickListener { vm.roll(Die.D4) }
-        d6.setOnClickListener { vm.roll(Die.D6) }
-        d8.setOnClickListener { vm.roll(Die.D8) }
-        d10.setOnClickListener { vm.roll(Die.D10) }
-        d12.setOnClickListener { vm.roll(Die.D12) }
-        d20.setOnClickListener { vm.roll(Die.D20) }
-        d100.setOnClickListener { vm.roll(Die.D100) }
+        d4.setOnClickListener { vm.process(HomeEvent.Roll(Die.D4)) }
+        d6.setOnClickListener { vm.process(HomeEvent.Roll(Die.D6)) }
+        d8.setOnClickListener { vm.process(HomeEvent.Roll(Die.D8)) }
+        d10.setOnClickListener { vm.process(HomeEvent.Roll(Die.D10)) }
+        d12.setOnClickListener { vm.process(HomeEvent.Roll(Die.D12)) }
+        d20.setOnClickListener { vm.process(HomeEvent.Roll(Die.D20)) }
+        d100.setOnClickListener { vm.process(HomeEvent.Roll(Die.D100)) }
 
-        help.setOnClickListener { vm.pleaseHelpMe() }
+        help.setOnClickListener { vm.process(HomeEvent.Help) }
 
         setFragmentResultListener(NameDialog.REQUEST_ID, this::dialogFinished)
     }
 
     private fun setUpObservers() {
-        vm._state.observe(viewLifecycleOwner, this::updateState)
-
         vm.state.observe(viewLifecycleOwner, this::updateState)
         vm.sets.observe(viewLifecycleOwner, setAdapter::submit)
-        vm.command.observe(viewLifecycleOwner, this::executeCommand)
+        vm.effect.observe(viewLifecycleOwner, this::newEffect)
     }
 
-    private fun executeCommand(cmd: HomeCommand?) {
-        when (cmd) {
-            is HomeCommand.ShowNameDialog -> findNavController().navigate(HomeFragmentDirections.showNameInput(cmd.nextId))
-            is HomeCommand.ShowHelp -> findNavController().navigate(HomeFragmentDirections.showHelp())
+
+    private fun newEffect(effect: HomeEffect) {
+        when (effect) {
+            is HomeEffect.ShowHelp -> findNavController().navigate(HomeFragmentDirections.showHelp())
+            is HomeEffect.ShowNameDialog -> findNavController().navigate(HomeFragmentDirections.showNameInput(effect.nextId))
+            is HomeEffect.ShowError -> parent.showError(effect.id)
         }
     }
 
     private fun dialogFinished(key: String, bundle: Bundle) {
         if (key == NameDialog.REQUEST_ID) {
-            bundle.getString(NameDialog.RESULT_NAME)?.let(vm::nameSelected)
+            val name = bundle.getString(NameDialog.RESULT_NAME)
+                ?: return
+            vm.process(HomeEvent.NameSelected(name))
         }
     }
 
-    private fun updateState(state: HomeFragmentState?) {
-        if (state == null)
-            return
-        rollAdapter.submit(state.rolls)
-        setAdapter.setSelected(state.set?.id)
-
-        if (state.set == null) { //rolling normally
-            updateAction(action1, R.drawable.ic_add, true)
-            updateAction(action2, -1, false)
-            updateAction(action3, -1, false)
-            modNumber.root.visible = false
-            d100.res = R.string.d100
-        } else if (!state.editing) { //new set
-            updateAction(action1, R.drawable.ic_save, true)
-            updateAction(action2, R.drawable.ic_cancel, true)
-            updateAction(action3, -1, false)
-            modNumber.root.visible = true
-            numberGroup.visibility
-            d100.res = R.string.modifier
-        } else {//editing a set
-            updateAction(action1, R.drawable.ic_save, true)
-            updateAction(action2, R.drawable.ic_delete, true)
-            updateAction(action3, R.drawable.ic_cancel, true)
-            modNumber.root.visible = true
-            d100.res = R.string.modifier
+    private fun updateState(state: HomeState) {
+        dieGroup.enabled = state !is HomeState.Viewing
+        numberGroup.visible = state !is HomeState.Viewing
+        modNumber.root.visible = state !is HomeState.Viewing
+        when (state) {
+            is HomeState.Viewing -> {
+                rollAdapter.submit(state.rolls)
+                setAdapter.setSelected(null)
+                updateAction(action1, R.drawable.ic_add, true)
+                updateAction(action2, -1, false)
+                updateAction(action3, -1, false)
+                d100.res = R.string.d100
+            }
+            is HomeState.Creating -> {
+                rollAdapter.submit(listOf())
+                setAdapter.setSelected(null)
+                updateAction(action1, R.drawable.ic_save, true)
+                updateAction(action2, R.drawable.ic_cancel, true)
+                updateAction(action3, -1, false)
+                d100.res = R.string.modifier
+                updateValues(state.set)
+            }
+            is HomeState.Editing -> {
+                rollAdapter.submit(listOf())
+                setAdapter.setSelected(state.set.id)
+                updateAction(action1, R.drawable.ic_save, true)
+                updateAction(action2, R.drawable.ic_delete, true)
+                updateAction(action3, R.drawable.ic_cancel, true)
+                d100.res = R.string.modifier
+                updateValues(state.set)
+            }
         }
-        updateValues(state.set)
-        dieGroup.enabled = state.set == null
-        numberGroup.visible = state.set != null
     }
 
     private fun updateAction(imageView: ImageView, @DrawableRes resId: Int, visible: Boolean) {

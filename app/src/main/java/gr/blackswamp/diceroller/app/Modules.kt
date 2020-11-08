@@ -32,6 +32,6 @@ val applicationModule = module {
 
     //<editor-fold desc="viewModels">
     viewModel { MainViewModel(androidApplication()) }
-    viewModel { params -> HomeViewModel(androidApplication(), params[0]) }
+    viewModel { HomeViewModel(androidApplication()) }
     //</editor-fold>
 }

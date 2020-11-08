@@ -17,11 +17,17 @@ object TestData {
         UUID.randomUUID(),
         "Set $id",
         rnd.nextInt(5) + 1,
+        rnd.nextBoolean(),
         rnd.nextInt(5) + 1,
+        rnd.nextBoolean(),
         rnd.nextInt(5) + 1,
+        rnd.nextBoolean(),
         rnd.nextInt(5) + 1,
+        rnd.nextBoolean(),
         rnd.nextInt(5) + 1,
+        rnd.nextBoolean(),
         rnd.nextInt(5) + 1,
+        rnd.nextBoolean(),
         rnd.nextInt(5) + 1,
     )
 }

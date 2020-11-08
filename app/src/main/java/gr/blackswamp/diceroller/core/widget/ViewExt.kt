@@ -1,4 +1,4 @@
-package gr.blackswamp.diceroller.util
+package gr.blackswamp.diceroller.core.widget
 
 import android.view.View
 import android.widget.TextView
