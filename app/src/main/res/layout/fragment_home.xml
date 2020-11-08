@@ -253,8 +253,10 @@
         android:layout_margin="@dimen/margin"
         android:visibility="gone"
         app:fabSize="mini"
+
         app:layout_constraintBottom_toTopOf="@id/sets"
-        app:layout_constraintStart_toEndOf="@id/action2" />
+        app:layout_constraintStart_toEndOf="@id/action2"
+        tools:visibility="visible" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/action2"
@@ -263,8 +265,10 @@
         android:layout_margin="@dimen/margin"
         android:visibility="gone"
         app:fabSize="mini"
+        app:layout_constraintStart_toEndOf="@id/action1"
         app:layout_constraintBottom_toTopOf="@id/sets"
-        app:layout_constraintStart_toEndOf="@id/action1" />
+        tools:src="@drawable/ic_delete"
+        tools:visibility="visible" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/action1"
