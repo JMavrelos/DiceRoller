@@ -6,12 +6,12 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import gr.blackswamp.diceroller.R
+import gr.blackswamp.diceroller.core.Logger
 import gr.blackswamp.diceroller.core.widget.value
 import gr.blackswamp.diceroller.databinding.ListItemModBinding
 import gr.blackswamp.diceroller.databinding.ListItemResultBinding
 import gr.blackswamp.diceroller.ui.model.Die
 import gr.blackswamp.diceroller.ui.model.Roll
-import timber.log.Timber
 
 class RollAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -23,7 +23,7 @@ class RollAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         val diff = RollDiff(rolls.toList(), newRolls ?: listOf())
         rolls.clear()
         rolls.addAll(newRolls ?: listOf())
-        Timber.d("New rolls $newRolls")
+        Logger.log { "New rolls $newRolls" }
         DiffUtil.calculateDiff(diff).dispatchUpdatesTo(this)
     }
 

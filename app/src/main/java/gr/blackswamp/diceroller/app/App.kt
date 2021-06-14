@@ -1,26 +1,19 @@
 package gr.blackswamp.diceroller.app
 
 import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
 import gr.blackswamp.diceroller.BuildConfig
-import org.koin.android.ext.koin.androidContext
-import org.koin.android.ext.koin.androidLogger
-import org.koin.core.context.startKoin
-import org.koin.core.logger.Level
-import timber.log.Timber
+import gr.blackswamp.diceroller.R
+import gr.blackswamp.diceroller.core.Logger
+import javax.inject.Inject
 
-class App : Application() {
+@HiltAndroidApp
+class App @Inject constructor() : Application() {
     override fun onCreate() {
         super.onCreate()
-        if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
-        }
         //<editor-fold desc="set up injections">
-        startKoin {
-            if (BuildConfig.DEBUG)
-                androidLogger(Level.ERROR)
-            androidContext(this@App)
-            modules(applicationModule)
-        }
+        Logger.enable(debug = BuildConfig.DEBUG, appName = getString(R.string.app_name))
+        Logger.setContext { applicationContext }
         //</editor-fold>
     }
 }

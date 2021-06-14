@@ -12,17 +12,16 @@ import gr.blackswamp.diceroller.data.db.DieSetEntity
 import gr.blackswamp.diceroller.data.db.DieSetHeaderEntity
 import gr.blackswamp.diceroller.data.repos.HomeRepository.Companion.NEXT_ROW_ID_QUERY
 import gr.blackswamp.diceroller.data.rnd.RandomGenerator
+import gr.blackswamp.diceroller.logic.DiePropertyData
 import gr.blackswamp.diceroller.logic.DieSetData
 import gr.blackswamp.diceroller.logic.DieSetHeaderData
 import gr.blackswamp.diceroller.ui.model.Die
-import gr.blackswamp.diceroller.uitls.KoinUnitTest
+import gr.blackswamp.diceroller.uitls.UnitTest
 import gr.blackswamp.diceroller.uitls.getOrAwait
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Test
-import org.koin.core.module.Module
-import org.koin.dsl.module
 import org.mockito.Mockito.anyInt
 import org.mockito.Mockito.mock
 import java.util.*
@@ -30,7 +29,7 @@ import kotlin.random.Random
 
 
 @ExperimentalCoroutinesApi
-class HomeRepositoryTest : KoinUnitTest() {
+class HomeRepositoryTest : UnitTest() {
     companion object {
         private val EmptyUUID = UUID(0L, 0L)
     }
@@ -40,14 +39,9 @@ class HomeRepositoryTest : KoinUnitTest() {
     private val rnd = mock(RandomGenerator::class.java)
     private lateinit var repo: HomeRepository
 
-    override val modules: Module = module {
-        single<AppDatabase> { db }
-        factory<RandomGenerator> { rnd }
-    }
-
     override fun setup() {
         super.setup()
-        repo = HomeRepository()
+        repo = HomeRepository(db, rnd)
         whenever(db.dieSetDao).thenReturn(dao)
     }
 
@@ -78,7 +72,17 @@ class HomeRepositoryTest : KoinUnitTest() {
     fun `when new set is called and the name does not exist an empty set is created`() {
         runBlocking {
             val name = "hello world"
-            val expected = DieSetData(EmptyUUID, name, mapOf(Die.D4 to 0, Die.D6 to 0, Die.D8 to 0, Die.D10 to 0, Die.D12 to 0, Die.D20 to 0))
+            val expected = DieSetData(
+                EmptyUUID, name,
+                mapOf(
+                    Die.D4 to DiePropertyData(0, false),
+                    Die.D6 to DiePropertyData(0, false),
+                    Die.D8 to DiePropertyData(0, false),
+                    Die.D10 to DiePropertyData(0, false),
+                    Die.D12 to DiePropertyData(0, false),
+                    Die.D20 to DiePropertyData(0, false)
+                )
+            )
             whenever(dao.countByName(name)).thenReturn(0)
 
             val response = repo.buildNewSet(name)
@@ -146,7 +150,16 @@ class HomeRepositoryTest : KoinUnitTest() {
         val id = UUID.randomUUID()
         val name = "hello world"
         val entity = DieSetEntity(id, name, 1111, false, 221312, false, 12312, false, 312, false, 31, false, 2314, false, 124)
-        val expected = DieSetData(id, name, mapOf(Die.D4 to 1111, Die.D6 to 221312, Die.D8 to 12312, Die.D10 to 312, Die.D12 to 31, Die.D20 to 2314), 124)
+        val expected = DieSetData(
+            id, name, mapOf(
+                Die.D4 to DiePropertyData(1111, false),
+                Die.D6 to DiePropertyData(221312, false),
+                Die.D8 to DiePropertyData(12312, false),
+                Die.D10 to DiePropertyData(312, false),
+                Die.D12 to DiePropertyData(31, false),
+                Die.D20 to DiePropertyData(2314, false)
+            ), 124
+        )
 
         val response = entity.toData()
 
@@ -170,7 +183,16 @@ class HomeRepositoryTest : KoinUnitTest() {
         val id = UUID.randomUUID()
         val name = "hello world"
         val expected = DieSetEntity(id, name, 1111, false, 221312, false, 12312, false, 312, false, 31, false, 2314, false, 124)
-        val data = DieSetData(id, name, mapOf(Die.D4 to 1111, Die.D6 to 221312, Die.D8 to 12312, Die.D10 to 312, Die.D12 to 31, Die.D20 to 2314), 124)
+        val data = DieSetData(
+            id, name, mapOf(
+                Die.D4 to DiePropertyData(1111, false),
+                Die.D6 to DiePropertyData(221312, false),
+                Die.D8 to DiePropertyData(12312, false),
+                Die.D10 to DiePropertyData(312, false),
+                Die.D12 to DiePropertyData(31, false),
+                Die.D20 to DiePropertyData(2314, false)
+            ), 124
+        )
 
         val response = data.toEntity()
 
@@ -286,15 +308,14 @@ class HomeRepositoryTest : KoinUnitTest() {
             val captor = argumentCaptor<DieSetEntity>()
             verify(dao).insert(captor.capture())
             verifyNoMoreInteractions(dao)
-            //todo:update for exploding dice
             assertNotEquals(EmptyUUID, captor.firstValue.id)
             assertEquals(set.name, captor.firstValue.name)
-            assertEquals(set.dice[Die.D4], captor.firstValue.d4s)
-            assertEquals(set.dice[Die.D6], captor.firstValue.d6s)
-            assertEquals(set.dice[Die.D8], captor.firstValue.d8s)
-            assertEquals(set.dice[Die.D10], captor.firstValue.d10s)
-            assertEquals(set.dice[Die.D12], captor.firstValue.d12s)
-            assertEquals(set.dice[Die.D20], captor.firstValue.d20s)
+            assertEquals(set.dice[Die.D4], DiePropertyData(captor.firstValue.d4s, captor.firstValue.d4Explode))
+            assertEquals(set.dice[Die.D6], DiePropertyData(captor.firstValue.d6s, captor.firstValue.d6Explode))
+            assertEquals(set.dice[Die.D8], DiePropertyData(captor.firstValue.d8s, captor.firstValue.d8Explode))
+            assertEquals(set.dice[Die.D10], DiePropertyData(captor.firstValue.d10s, captor.firstValue.d10Explode))
+            assertEquals(set.dice[Die.D12], DiePropertyData(captor.firstValue.d12s, captor.firstValue.d12Explode))
+            assertEquals(set.dice[Die.D20], DiePropertyData(captor.firstValue.d20s, captor.firstValue.d20Explode))
             assertEquals(set.modifier, captor.firstValue.mod)
 
             val data = (reply as Reply.Success).data
@@ -365,27 +386,54 @@ class HomeRepositoryTest : KoinUnitTest() {
             whenever(rnd.nextInt(anyInt())).doAnswer { a -> random.nextInt(a.arguments[0] as Int) }
             val set = DieSetData(
                 EmptyUUID, "test", mapOf(
-                    Die.D4 to random.nextInt(0, 5),
-                    Die.D6 to random.nextInt(0, 5),
-                    Die.D8 to random.nextInt(0, 5),
-                    Die.D10 to random.nextInt(0, 5),
-                    Die.D12 to random.nextInt(0, 5),
-                    Die.D20 to random.nextInt(0, 5),
+                    Die.D4 to DiePropertyData(random.nextInt(0, 5), false),
+                    Die.D6 to DiePropertyData(random.nextInt(0, 5), false),
+                    Die.D8 to DiePropertyData(random.nextInt(0, 5), false),
+                    Die.D10 to DiePropertyData(random.nextInt(0, 5), false),
+                    Die.D12 to DiePropertyData(random.nextInt(0, 5), false),
+                    Die.D20 to DiePropertyData(random.nextInt(0, 5), false),
                 ), random.nextInt(0, 5)
             )
 
             val rolls = repo.generateRolls(set)
 
-            assertEquals(set.dice[Die.D4], rolls.count { it.die == Die.D4 })
-            assertEquals(set.dice[Die.D4], rolls.count { it.die == Die.D4 })
-            assertEquals(set.dice[Die.D6], rolls.count { it.die == Die.D6 })
-            assertEquals(set.dice[Die.D8], rolls.count { it.die == Die.D8 })
-            assertEquals(set.dice[Die.D10], rolls.count { it.die == Die.D10 })
-            assertEquals(set.dice[Die.D12], rolls.count { it.die == Die.D12 })
-            assertEquals(set.dice[Die.D20], rolls.count { it.die == Die.D20 })
+            assertEquals(set.dice[Die.D4], DiePropertyData(rolls.count { it.die == Die.D4 }, false))
+            assertEquals(set.dice[Die.D6], DiePropertyData(rolls.count { it.die == Die.D6 }, false))
+            assertEquals(set.dice[Die.D8], DiePropertyData(rolls.count { it.die == Die.D8 }, false))
+            assertEquals(set.dice[Die.D10], DiePropertyData(rolls.count { it.die == Die.D10 }, false))
+            assertEquals(set.dice[Die.D12], DiePropertyData(rolls.count { it.die == Die.D12 }, false))
+            assertEquals(set.dice[Die.D20], DiePropertyData(rolls.count { it.die == Die.D20 }, false))
             assertEquals(0, rolls.count { it.die == Die.D100 })
         }
     }
+
+    @Test
+    fun `generate exploding rolls`() {
+        runBlocking {
+            val random = Random.Default
+            whenever(rnd.nextInt(anyInt())).doAnswer { a -> random.nextInt(a.arguments[0] as Int) }
+            val set = DieSetData(
+                EmptyUUID, "test", mapOf(
+                    Die.D4 to DiePropertyData(random.nextInt(500, 1000), true),
+                    Die.D6 to DiePropertyData(random.nextInt(500, 1000), true),
+                    Die.D8 to DiePropertyData(random.nextInt(500, 1000), true),
+                    Die.D10 to DiePropertyData(random.nextInt(500, 1000), true),
+                    Die.D12 to DiePropertyData(random.nextInt(500, 1000), true),
+                    Die.D20 to DiePropertyData(random.nextInt(500, 1000), true),
+                ), random.nextInt(0, 5)
+            )
+
+            val rolls = repo.generateRolls(set)
+
+            for (die in listOf(Die.D4, Die.D6, Die.D8, Die.D10, Die.D12, Die.D20)) {
+                val countExploded = rolls.count { it.die == die && it.value == die.max }
+                val count = rolls.count { it.die == die }
+                assertEquals(set.dice[die]!!.times + countExploded, count)
+            }
+            assertEquals(0, rolls.count { it.die == Die.D100 })
+        }
+    }
+
 
     @Test
     fun `calling next available id queries the db for the next one`() {

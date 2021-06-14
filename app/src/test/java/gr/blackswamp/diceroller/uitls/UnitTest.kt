@@ -14,18 +14,11 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
-import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.loadKoinModules
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
-import org.koin.core.context.unloadKoinModules
-import org.koin.core.module.Module
-import org.koin.test.KoinTest
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.Mockito.mock
 
 @ExperimentalCoroutinesApi
-abstract class KoinUnitTest : KoinTest {
+abstract class UnitTest {
     companion object {
         const val APP_STRING = "message"
     }
@@ -33,7 +26,6 @@ abstract class KoinUnitTest : KoinTest {
     @get:Rule
     var instantExecutorRule = InstantTaskExecutorRule()
 
-    protected abstract val modules: Module
     protected open val stringInjections = mapOf<Int, String>()
     protected val app: Application = mock(Application::class.java)
     private val dispatcher = TestCoroutineDispatcher()
@@ -41,14 +33,6 @@ abstract class KoinUnitTest : KoinTest {
     @Before
     @CallSuper
     open fun setup() {
-        startKoin {
-            androidContext(app)
-            loadKoinModules(
-                listOf(
-                    modules
-                )
-            )
-        }
         reset(app)
         setUpApplicationMocks()
         Dispatchers.setMain(dispatcher)
@@ -65,8 +49,6 @@ abstract class KoinUnitTest : KoinTest {
     @After
     @CallSuper
     open fun tearDown() {
-        unloadKoinModules(modules)
-        stopKoin()
         Dispatchers.resetMain()
         dispatcher.cleanupTestCoroutines()
     }

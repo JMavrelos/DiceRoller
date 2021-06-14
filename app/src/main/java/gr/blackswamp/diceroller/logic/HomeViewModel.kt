@@ -3,18 +3,17 @@ package gr.blackswamp.diceroller.logic
 import android.app.Application
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
+import dagger.hilt.android.lifecycle.HiltViewModel
 import gr.blackswamp.diceroller.core.livedata.LiveEvent
 import gr.blackswamp.diceroller.data.repos.HomeRepository
 import gr.blackswamp.diceroller.data.repos.Reply
 import gr.blackswamp.diceroller.ui.model.*
 import kotlinx.coroutines.launch
-import org.koin.core.KoinComponent
-import org.koin.core.inject
 import java.util.*
+import javax.inject.Inject
 
-class HomeViewModel(app: Application) : AndroidViewModel(app), KoinComponent {
-    private val repo by inject<HomeRepository>()
-
+@HiltViewModel
+class HomeViewModel @Inject constructor(app: Application, private val repo: HomeRepository) : AndroidViewModel(app) {
     @VisibleForTesting
     internal val privateState = MutableLiveData<HomeState>()
     private val privateEffect = LiveEvent<HomeEffect>()

@@ -17,19 +17,19 @@ import gr.blackswamp.diceroller.ui.model.Die
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import org.koin.core.KoinComponent
-import org.koin.core.inject
 import java.util.*
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class HomeRepository : KoinComponent {
+
+@Singleton
+class HomeRepository @Inject constructor(private val db: AppDatabase, private val rnd: RandomGenerator) {
     companion object {
         @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
         internal val NEXT_ROW_ID_QUERY = "SELECT ifNull(max(rowid),0) + 1 FROM die_sets"
     }
 
     private val newSetId by lazy { UUID(0L, 0L) }
-    private val db by inject<AppDatabase>()
-    private val rnd by inject<RandomGenerator>()
 
     fun getSets(): LiveData<List<DieSetHeaderData>> {
         return db.dieSetDao.getSetHeaders().map { it.map(DieSetHeaderEntity::toData) }

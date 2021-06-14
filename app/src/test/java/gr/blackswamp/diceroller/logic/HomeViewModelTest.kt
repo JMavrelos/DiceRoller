@@ -13,33 +13,25 @@ import gr.blackswamp.diceroller.ui.model.HomeEvent
 import gr.blackswamp.diceroller.ui.model.HomeState
 import gr.blackswamp.diceroller.ui.model.Roll.Result
 import gr.blackswamp.diceroller.ui.model.Roll.Text
-import gr.blackswamp.diceroller.uitls.KoinUnitTest
+import gr.blackswamp.diceroller.uitls.UnitTest
 import gr.blackswamp.diceroller.uitls.getOrAwait
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.koin.core.module.Module
-import org.koin.dsl.module
 import java.util.*
 
 @ExperimentalCoroutinesApi
-class HomeViewModelTest : KoinUnitTest() {
+class HomeViewModelTest : UnitTest() {
     private val repo = mock<HomeRepository>()
     private lateinit var vm: HomeViewModel
-
-    override val modules: Module = module {
-        single { repo }
-        single { Dispatchers.Default }
-    }
 
     @Before
     override fun setup() {
         super.setup()
-        vm = HomeViewModel(app)
+        vm = HomeViewModel(app, repo)
     }
 
     //<editor-fold desc="Roll Event">
@@ -177,21 +169,24 @@ class HomeViewModelTest : KoinUnitTest() {
     }
 
     @Test
-    fun `roll a die but there is a set selected(in theory this cannot happen)`() {
+    fun `roll a die but there is a set selected it flags or unflags it as exploding`() {
         runBlocking {
             //setup
             whenever(repo.buildNewSet("dummy name")).thenReturn(Reply.Success(TestData.SETS.random().toData()))
             vm.process(HomeEvent.NameSelected("dummy name"))
-            val set = (vm.state.getOrAwait() as HomeState.Creating).set
-
+            val set = (vm.state.getOrAwait() as HomeState.Creating).set as DieSetData
+            val diePressed = Die.values().filter { it != D100 }.random()
+            val expectedDice = set.dice.map { it.key to (if (it.key == diePressed) DiePropertyData(it.value.times, !it.value.exploding) else it.value) }.toMap()
+            val expectedSet = set.copy(dice = expectedDice)
             //run
-            vm.process(HomeEvent.DieSelect(Die.values().random()))
+
+            vm.process(HomeEvent.DieSelect(diePressed))
 
             //check
             val newState = vm.state.getOrAwait()
             verify(repo, never()).generateRolls(any())
             assertTrue(newState is HomeState.Creating)
-            assertEquals(set, (newState as HomeState.Creating).set)
+            assertEquals(expectedSet, (newState as HomeState.Creating).set)
         }
     }
     //</editor-fold>

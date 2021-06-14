@@ -9,10 +9,13 @@ import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexboxLayoutManager
+import dagger.hilt.android.AndroidEntryPoint
 import gr.blackswamp.diceroller.R
 import gr.blackswamp.diceroller.core.widget.enabled
 import gr.blackswamp.diceroller.core.widget.res
@@ -26,15 +29,12 @@ import gr.blackswamp.diceroller.ui.adapters.RollAdapter
 import gr.blackswamp.diceroller.ui.adapters.SetAdapter
 import gr.blackswamp.diceroller.ui.dialogs.NameDialog
 import gr.blackswamp.diceroller.ui.model.*
-import org.koin.android.viewmodel.ext.android.sharedViewModel
-import org.koin.android.viewmodel.ext.android.viewModel
-import org.koin.core.KoinComponent
-import org.koin.core.parameter.parametersOf
 
-class HomeFragment : Fragment(), KoinComponent {
+@AndroidEntryPoint
+class HomeFragment : Fragment() {
     private val binding by lazy { FragmentHomeBinding.inflate(layoutInflater) }
-    private val parent: FragmentParent by sharedViewModel<MainViewModel>()
-    private val vm by viewModel<HomeViewModel> { parametersOf(parent) }
+    private val parent: FragmentParent by activityViewModels<MainViewModel>()
+    private val vm by viewModels<HomeViewModel>()
 
     //<editor-fold desc="view bindings">
     private val sets by lazy { binding.sets }
@@ -63,8 +63,7 @@ class HomeFragment : Fragment(), KoinComponent {
     private val inPortrait by lazy { resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT }
     //</editor-fold>
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-        binding.root
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View = binding.root
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initView(view)

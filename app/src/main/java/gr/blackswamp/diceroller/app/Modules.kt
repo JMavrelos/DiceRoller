@@ -1,37 +1,39 @@
 package gr.blackswamp.diceroller.app
 
+import android.app.Application
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import androidx.room.Room
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import gr.blackswamp.diceroller.data.db.AppDatabase
-import gr.blackswamp.diceroller.data.repos.HomeRepository
 import gr.blackswamp.diceroller.data.rnd.RandomGenerator
-import gr.blackswamp.diceroller.logic.HomeViewModel
-import gr.blackswamp.diceroller.logic.MainViewModel
-import org.koin.android.ext.koin.androidApplication
-import org.koin.android.ext.koin.androidContext
-import org.koin.android.viewmodel.dsl.viewModel
-import org.koin.dsl.module
+import javax.inject.Singleton
 
-val applicationModule = module {
-    single { RandomGenerator() }
-    single<SharedPreferences> {
-        androidApplication().getSharedPreferences(
+
+@Module
+@InstallIn(SingletonComponent::class)
+class AppModule {
+    @Provides
+    fun provideRandomGenerator(): RandomGenerator {
+        return RandomGenerator()
+    }
+
+    @Provides
+    @Singleton
+    fun providePreferences(app: Application): SharedPreferences {
+        return app.getSharedPreferences(
             "DiceRollerPrefs",
             MODE_PRIVATE
         )
     }
-    single {
-        Room.databaseBuilder(androidContext(), AppDatabase::class.java, "data.db")
+
+    @Provides
+    @Singleton
+    fun provideDatabase(app: Application): AppDatabase {
+        return Room.databaseBuilder(app, AppDatabase::class.java, "data.db")
             .build()
     }
-
-    //<editor-fold desc="repositories">
-    single { HomeRepository() }
-    //</editor-fold>
-
-    //<editor-fold desc="viewModels">
-    viewModel { MainViewModel(androidApplication()) }
-    viewModel { HomeViewModel(androidApplication()) }
-    //</editor-fold>
 }

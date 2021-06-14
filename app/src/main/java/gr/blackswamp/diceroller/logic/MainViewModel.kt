@@ -3,9 +3,12 @@ package gr.blackswamp.diceroller.logic
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import dagger.hilt.android.lifecycle.HiltViewModel
 import gr.blackswamp.diceroller.core.livedata.LiveEvent
+import javax.inject.Inject
 
-class MainViewModel(app: Application) : AndroidViewModel(app), FragmentParent {
+@HiltViewModel
+class MainViewModel @Inject constructor(app: Application) : AndroidViewModel(app), FragmentParent {
     private val _error = LiveEvent<String>()
     val error: LiveData<String> = _error
 
